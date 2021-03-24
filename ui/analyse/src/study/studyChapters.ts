@@ -44,8 +44,8 @@ export function ctrl(
     },
     firstChapterId: () => list()[0].id,
     toggleNewForm() {
-      if (newForm.vm.open || list().length < 64) newForm.toggle();
-      else alert('You have reached the limit of 64 chapters per study. Please create a new study.');
+      if (newForm.vm.open || list().length < 2000) newForm.toggle();
+      else alert('You have reached the limit of 2000 chapters per study. Please create a new study.');
     },
     localPaths,
   };
