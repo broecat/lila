@@ -224,12 +224,12 @@ export function view(ctrl: StudyFormCtrl): VNode {
           h(`div.form-actions${ctrl.relay ? '' : '.single'}`, [
             ctrl.relay
               ? h(
-                  'a',
-                  {
-                    attrs: { href: `/broadcast/-/${data.id}/edit` },
-                  },
-                  'Broadcast settings'
-                )
+                'a',
+                {
+                  attrs: { href: `/broadcast/-/${data.id}/edit` },
+                },
+                'Broadcast settings'
+              )
               : null,
             h(
               'button.button',
@@ -245,18 +245,18 @@ export function view(ctrl: StudyFormCtrl): VNode {
         isNew
           ? null
           : h(
-              'form',
-              {
-                attrs: {
-                  action: '/study/' + data.id + '/clear-chat',
-                  method: 'post',
-                },
-                hook: bind('submit', _ => {
-                  return confirm(ctrl.trans.noarg('deleteTheStudyChatHistory'));
-                }),
+            'form',
+            {
+              attrs: {
+                action: '/study/' + data.id + '/clear-chat',
+                method: 'post',
               },
-              [h(emptyRedButton, ctrl.trans.noarg('clearChat'))]
-            ),
+              hook: bind('submit', _ => {
+                return confirm(ctrl.trans.noarg('deleteTheStudyChatHistory'));
+              }),
+            },
+            [h(emptyRedButton, ctrl.trans.noarg('clearChat'))]
+          ),
         h(
           'form',
           {

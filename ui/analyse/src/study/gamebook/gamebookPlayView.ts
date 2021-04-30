@@ -21,12 +21,12 @@ export function render(ctrl: GamebookPlayCtrl): VNode {
     [
       comment
         ? h(
-            'div.comment',
-            {
-              class: { hinted: state.showHint },
-            },
-            [h('div.content', { hook: richHTML(comment) }), hintZone(ctrl)]
-          )
+          'div.comment',
+          {
+            class: { hinted: state.showHint },
+          },
+          [h('div.content', { hook: richHTML(comment) }), hintZone(ctrl)]
+        )
         : undefined,
       h('div.floor', [
         renderFeedback(ctrl, state),
@@ -78,12 +78,12 @@ function renderFeedback(ctrl: GamebookPlayCtrl, state: State) {
       'div',
       fb === 'play'
         ? [
-            h('div.no-square', h('piece.king.' + color)),
-            h('div.instruction', [
-              h('strong', ctrl.trans.noarg('yourTurn')),
-              h('em', ctrl.trans.noarg(color === 'white' ? 'findTheBestMoveForWhite' : 'findTheBestMoveForBlack')),
-            ]),
-          ]
+          h('div.no-square', h('piece.king.' + color)),
+          h('div.instruction', [
+            h('strong', ctrl.trans.noarg('yourTurn')),
+            h('em', ctrl.trans.noarg(color === 'white' ? 'findTheBestMoveForWhite' : 'findTheBestMoveForBlack')),
+          ]),
+        ]
         : ['Good move!']
     )
   );
@@ -95,13 +95,13 @@ function renderEnd(ctrl: GamebookPlayCtrl) {
   return h('div.feedback.end', [
     nextChapter
       ? h(
-          'a.next.text',
-          {
-            attrs: dataIcon('G'),
-            hook: bind('click', () => study.setChapter(nextChapter.id)),
-          },
-          'Next chapter'
-        )
+        'a.next.text',
+        {
+          attrs: dataIcon('G'),
+          hook: bind('click', () => study.setChapter(nextChapter.id)),
+        },
+        'Next chapter'
+      )
       : undefined,
     h(
       'a.retry',

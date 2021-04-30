@@ -57,8 +57,8 @@ export default class GamebookPlayCtrl {
     }
     this.state = state as State;
     if (!state.comment) {
-      if (state.feedback === 'good') setTimeout(this.next, this.root.path ? 1000 : 300);
-      else if (state.feedback === 'bad') setTimeout(this.retry, 800);
+      if (state.feedback === 'good') setTimeout(this.next, 100);
+      else if (state.feedback === 'bad') setTimeout(this.retry, 100);
     }
   };
 
