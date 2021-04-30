@@ -1,9 +1,15 @@
+import type Highcharts from 'highcharts';
+
 import AnalyseCtrl from './ctrl';
 import { baseUrl } from './util';
 import { defined } from 'common';
 import modal from 'common/modal';
 import { formToXhr } from 'common/xhr';
 import { AnalyseData } from './interfaces';
+
+interface PlyChart extends Highcharts.ChartObject {
+  lastPly?: Ply | false;
+}
 
 export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
   $(element).replaceWith(ctrl.opts.$underboard!);
@@ -15,7 +21,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
     $menu = $('.analyse__underboard__menu'),
     $timeChart = $('#movetimes-chart'),
     inputFen = document.querySelector('.analyse__underboard__fen') as HTMLInputElement,
-    unselect = chart => {
+    unselect = (chart: Highcharts.ChartObject) => {
       chart.getSelectedPoints().forEach(function (point) {
         point.select(false);
       });
@@ -29,20 +35,18 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
       }, 50);
     });
     lichess.pubsub.on('analysis.change', (fen: Fen, _, mainlinePly: Ply | false) => {
-      let chart,
-        point,
-        $chart = $('#acpl-chart');
+      const $chart = $('#acpl-chart');
       if (fen && fen !== lastFen) {
         inputFen.value = fen;
         lastFen = fen;
       }
       if ($chart.length) {
-        chart = $chart[0]!['highcharts'];
+        const chart: PlyChart = ($chart[0] as HighchartsHTMLElement).highcharts;
         if (chart) {
           if (mainlinePly != chart.lastPly) {
             if (mainlinePly === false) unselect(chart);
             else {
-              point = chart.series[0].data[mainlinePly - 1 - data.game.startedAtTurn];
+              const point = chart.series[0].data[mainlinePly - 1 - data.game.startedAtTurn];
               if (defined(point)) point.select();
               else unselect(chart);
             }
@@ -51,7 +55,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
         }
       }
       if ($timeChart.length) {
-        chart = $timeChart[0]!['highcharts'];
+        const chart: PlyChart = ($timeChart[0] as HighchartsHTMLElement).highcharts;
         if (chart) {
           if (mainlinePly != chart.lastPly) {
             if (mainlinePly === false) unselect(chart);
@@ -59,7 +63,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
               const white = mainlinePly % 2 !== 0;
               const serie = white ? 0 : 1;
               const turn = Math.floor((mainlinePly - 1 - data.game.startedAtTurn) / 2);
-              point = chart.series[serie].data[turn];
+              const point = chart.series[serie].data[turn];
               if (defined(point)) point.select();
               else unselect(chart);
             }
@@ -98,11 +102,7 @@ export default function (element: HTMLElement, ctrl: AnalyseCtrl) {
       .filter('.' + panel)
       .addClass('active');
     if ((panel == 'move-times' || ctrl.opts.hunter) && !lichess.movetimeChart)
-      try {
-        lichess.loadScript('javascripts/chart/movetime.js').then(function () {
-          lichess.movetimeChart(data, ctrl.trans);
-        });
-      } catch (e) {}
+      lichess.loadScript('javascripts/chart/movetime.js').then(() => lichess.movetimeChart(data, ctrl.trans));
     if ((panel == 'computer-analysis' || ctrl.opts.hunter) && $('#acpl-chart').length)
       setTimeout(startAdvantageChart, 200);
   };

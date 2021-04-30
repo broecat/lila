@@ -1,15 +1,15 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { prop, Prop } from 'common';
 import { bind, dataIcon, iconTag, scrollTo } from '../util';
 import { ctrl as chapterNewForm, StudyChapterNewFormCtrl } from './chapterNewForm';
-import { ctrl as chapterEditForm } from './chapterEditForm';
+import { ctrl as chapterEditForm, StudyChapterEditFormCtrl } from './chapterEditForm';
 import AnalyseCtrl from '../ctrl';
 import { StudyCtrl, StudyChapterMeta, LocalPaths, StudyChapter, TagArray, StudyChapterConfig } from './interfaces';
+import { StudySocketSend } from '../socket';
 
 export interface StudyChaptersCtrl {
   newForm: StudyChapterNewFormCtrl;
-  editForm: any;
+  editForm: StudyChapterEditFormCtrl;
   list: Prop<StudyChapterMeta[]>;
   get(id: string): StudyChapterMeta | undefined;
   size(): number;
@@ -21,7 +21,7 @@ export interface StudyChaptersCtrl {
 
 export function ctrl(
   initChapters: StudyChapterMeta[],
-  send: SocketSend,
+  send: StudySocketSend,
   setTab: () => void,
   chapterConfig: (id: string) => Promise<StudyChapterConfig>,
   root: AnalyseCtrl
@@ -106,8 +106,6 @@ export function view(ctrl: StudyCtrl): VNode {
     }
   }
 
-  const introActive = ctrl.relay && ctrl.relay.intro.active;
-
   return h(
     'div.study__chapters',
     {
@@ -117,8 +115,10 @@ export function view(ctrl: StudyCtrl): VNode {
             const target = e.target as HTMLElement;
             const id = (target.parentNode as HTMLElement).getAttribute('data-id') || target.getAttribute('data-id');
             if (!id) return;
-            if (target.tagName === 'ACT') ctrl.chapters.editForm.toggle(ctrl.chapters.get(id));
-            else ctrl.setChapter(id);
+            if (target.className === 'act') {
+              const chapter = ctrl.chapters.get(id);
+              if (chapter) ctrl.chapters.editForm.toggle(chapter);
+            } else ctrl.setChapter(id);
           });
           vnode.data!.li = {};
           update(vnode);
@@ -139,7 +139,7 @@ export function view(ctrl: StudyCtrl): VNode {
       .map((chapter, i) => {
         const editing = ctrl.chapters.editForm.isEditing(chapter.id),
           loading = ctrl.vm.loading && chapter.id === ctrl.vm.nextChapterId,
-          active = !ctrl.vm.loading && current && !introActive && current.id === chapter.id;
+          active = !ctrl.vm.loading && current && !ctrl.relay?.tourShow.active && current.id === chapter.id;
         return h(
           'div',
           {
@@ -152,7 +152,7 @@ export function view(ctrl: StudyCtrl): VNode {
             h('h3', chapter.name),
             chapter.ongoing ? h('ongoing', { attrs: { ...dataIcon('J'), title: 'Ongoing' } }) : null,
             !chapter.ongoing && chapter.res ? h('res', chapter.res) : null,
-            canContribute ? h('act', { attrs: dataIcon('%') }) : null,
+            canContribute ? h('i.act', { attrs: dataIcon('%') }) : null,
           ]
         );
       })

@@ -204,7 +204,7 @@ final private class TourFields(form: Form[_], tour: Option[Tournament])(implicit
 
   def isTeamBattle = tour.exists(_.isTeamBattle) || form("teamBattleByTeam").value.nonEmpty
 
-  def disabledAfterStart = tour.exists(!_.isCreated)
+  private def disabledAfterStart = tour.exists(!_.isCreated)
 
   def name =
     form3.group(form("name"), trans.name()) { f =>
@@ -277,13 +277,12 @@ final private class TourFields(form: Form[_], tour: Option[Tournament])(implicit
       half = half
     )(form3.textarea(_)(rows := 4))
   def password =
-    !isTeamBattle option
-      form3.group(
-        form("password"),
-        trans.password(),
-        help = trans.makePrivateTournament().some,
-        half = true
-      )(form3.input(_)(autocomplete := "off"))
+    form3.group(
+      form("password"),
+      trans.password(),
+      help = trans.makePrivateTournament().some,
+      half = true
+    )(form3.input(_)(autocomplete := "off"))
   def startDate =
     form3.group(
       form("startDate"),

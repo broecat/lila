@@ -127,11 +127,8 @@
   <string name="infiniteAnalysis">تحليل لانهائي</string>
   <string name="removesTheDepthLimit">التحليل لأبعد عمق، وابقاء حاسوبك نشطًا</string>
   <string name="blunder">خطأ فادح</string>
-  <string name="blunders">أخطاء فادحة</string>
   <string name="mistake">خطأ</string>
-  <string name="mistakes">أخطاء</string>
   <string name="inaccuracy">غير دقيق</string>
-  <string name="inaccuracies">نقلات غير دقيقة</string>
   <string name="moveTimes">توقيت النقلات</string>
   <string name="flipBoard">تدوير الرقعة</string>
   <string name="threefoldRepetition">تكرار ثلاثي</string>
@@ -346,7 +343,6 @@
     <item quantity="other">منح %s ثانية</item>
   </plurals>
   <string name="thisAccountViolatedTos">هذا الحساب انتهك شروط خدمة lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">هذا اللاعب يتلاعب بتقييمه</string>
   <string name="openingExplorerAndTablebase">مستكشف الافتتاحيات&amp; جدول النهايات</string>
   <string name="takeback">تراجع</string>
   <string name="proposeATakeback">اقتراح تراجع عن النقلة الآخيرة</string>

@@ -5,7 +5,6 @@ import org.joda.time.Interval
 
 import lila.common.Day
 import lila.user.User
-import lila.swiss.Swiss
 
 case class Activity(
     id: Activity.Id,
@@ -14,6 +13,7 @@ case class Activity(
     puzzles: Option[Puzzles] = None,
     storm: Option[Storm] = None,
     racer: Option[Racer] = None,
+    streak: Option[Streak] = None,
     learn: Option[Learn] = None,
     practice: Option[Practice] = None,
     simuls: Option[Simuls] = None,
@@ -37,6 +37,7 @@ case class Activity(
       puzzles,
       storm,
       racer,
+      streak,
       learn,
       practice,
       simuls,

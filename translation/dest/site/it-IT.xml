@@ -115,11 +115,20 @@
   <string name="infiniteAnalysis">Analisi infinita</string>
   <string name="removesTheDepthLimit">Rimuove il limite di profondità di analisi, ma può surriscaldare il tuo computer</string>
   <string name="blunder">Errore grave</string>
-  <string name="blunders">Errori gravi</string>
   <string name="mistake">Errore</string>
-  <string name="mistakes">Errori</string>
   <string name="inaccuracy">Imprecisione</string>
-  <string name="inaccuracies">Imprecisioni</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s errore grave</item>
+    <item quantity="other">%s errori gravi</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s errore</item>
+    <item quantity="other">%s errori</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s imprecisione</item>
+    <item quantity="other">%s imprecisioni</item>
+  </plurals>
   <string name="moveTimes">Tempo per mossa</string>
   <string name="flipBoard">Ruota la scacchiera</string>
   <string name="threefoldRepetition">Triplice ripetizione</string>
@@ -278,7 +287,6 @@
     <item quantity="other">Concedi %s secondi</item>
   </plurals>
   <string name="thisAccountViolatedTos">Questo account ha violato i termini di servizio di Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Questo giocatore modifica il proprio punteggio irregolarmente</string>
   <string name="openingExplorerAndTablebase">Esplora le aperture e finali</string>
   <string name="takeback">Ritira la mossa</string>
   <string name="proposeATakeback">Chiedi di ritirare la mossa</string>
@@ -839,4 +847,22 @@ analizzarla con il computer, commentarla in chat, e condividerla tramite un indi
   <string name="youCannotPostYetPlaySomeGames">Non puoi ancora postare nei forum. Gioca qualche partita!</string>
   <string name="subscribe">Iscriviti</string>
   <string name="unsubscribe">Annullare l\'iscrizione</string>
+  <string name="mentionedYouInX"> ti ha menzionato in \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s ti ha citato in \"%2$s\".</string>
+  <string name="invitedYouToX"> ti ha invitato a \"%1$s\".</string>
+  <string name="xInvitedYouToY">%1$s ti ha invitato a \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Ora fai parte del team.</string>
+  <string name="youHaveJoinedTeamX">Ti sei unito a \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Qualcuno che hai segnalato è stato bannato</string>
+  <string name="congratsYouWon">Complimenti, hai vinto!</string>
+  <string name="gameVsX">Partita contro %1$s</string>
+  <string name="resVsX">%1$s contro %2$s</string>
+  <string name="youJustBecamePatron">Sei appena diventato un mecenate di lichess.</string>
+  <string name="patronAccountExpired">Lo stato di mecenate è scaduto</string>
+  <string name="pleaseReconsiderRenewIt">Per favore considera di rinnovarlo!</string>
+  <string name="someoneReviewedYourCoachProfile">Qualcuno ha esaminato il tuo profilo di allenatore.</string>
+  <string name="newPendingReview">In attesa di verifica</string>
+  <string name="lostAgainstTOSViolator">Hai perso con qualcuno che ha violato i termini di servizio lichess</string>
+  <string name="refundXpointsTimeControlY">Rimborso: %1$s %2$s punti di valutazione.</string>
+  <string name="timeAlmostUp">Il tempo è quasi finito!</string>
 </resources>

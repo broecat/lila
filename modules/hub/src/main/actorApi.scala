@@ -22,10 +22,14 @@ package map {
 }
 
 package socket {
+
   case class SendTo(userId: String, message: JsObject)
+  case class SendToAsync(userId: String, message: () => Fu[JsObject])
   object SendTo {
     def apply[A: Writes](userId: String, typ: String, data: A): SendTo =
       SendTo(userId, Json.obj("t" -> typ, "d" -> data))
+    def async[A: Writes](userId: String, typ: String, data: () => Fu[A]): SendToAsync =
+      SendToAsync(userId, () => data() dmap { d => Json.obj("t" -> typ, "d" -> d) })
   }
   case class SendTos(userIds: Set[String], message: JsObject)
   object SendTos {
@@ -41,7 +45,9 @@ package socket {
 }
 
 package clas {
-  case class IsTeacherOf(teacherId: String, studentId: String, promise: Promise[Boolean])
+  case class AreKidsInSameClass(kid1: user.KidId, kid2: user.KidId, promise: Promise[Boolean])
+  case class IsTeacherOf(teacher: String, student: String, promise: Promise[Boolean])
+  case class ClasMatesAndTeachers(kid: user.KidId, promise: Promise[Set[String]])
 }
 
 package report {
@@ -55,17 +61,17 @@ package security {
   case class GarbageCollect(userId: String)
   case class GCImmediateSb(userId: String)
   case class CloseAccount(userId: String)
+  case class DeletePublicChats(userId: String)
 }
 
 package msg {
   case class SystemMsg(userId: String, text: String)
 }
 
-package storm {
+package puzzle {
   case class StormRun(userId: String, score: Int)
-}
-package racer {
   case class RacerRun(userId: String, score: Int)
+  case class StreakRun(userId: String, score: Int)
 }
 
 package shutup {
@@ -100,6 +106,7 @@ package mod {
 
 package playban {
   case class Playban(userId: String, mins: Int)
+  case class RageSitClose(userId: String)
 }
 
 package captcha {
@@ -228,6 +235,8 @@ package fishnet {
 
 package user {
   case class Note(from: String, to: String, text: String, mod: Boolean)
+  case class KidId(id: String)
+  case class NonKidId(id: String)
 }
 
 package round {

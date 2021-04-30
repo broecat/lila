@@ -115,11 +115,20 @@
   <string name="infiniteAnalysis">Неограничен анализ</string>
   <string name="removesTheDepthLimit">Анализът ще е безкраен, а компютърът ви - топъл</string>
   <string name="blunder">Груба грешка</string>
-  <string name="blunders">Гафове</string>
   <string name="mistake">Грешка</string>
-  <string name="mistakes">Грешки</string>
   <string name="inaccuracy">Неточност</string>
-  <string name="inaccuracies">Неточности</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s груба грешка</item>
+    <item quantity="other">%s груби грешки</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s грешка</item>
+    <item quantity="other">%s грешки</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s неточност</item>
+    <item quantity="other">%s неточности</item>
+  </plurals>
   <string name="moveTimes">Време за ход</string>
   <string name="flipBoard">Завърти дъската</string>
   <string name="threefoldRepetition">Тройно повторение</string>
@@ -278,7 +287,6 @@
     <item quantity="other">Дай %s sec</item>
   </plurals>
   <string name="thisAccountViolatedTos">Този профил е нарушил Условията за Ползване на Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Този играч изкуствено увеличава/намалява своята оценка</string>
   <string name="openingExplorerAndTablebase">&amp; - Изследовател на дебютите</string>
   <string name="takeback">Върни ход</string>
   <string name="proposeATakeback">Предложи връщане на ход</string>
@@ -839,4 +847,22 @@
   <string name="youCannotPostYetPlaySomeGames">Все още не можете да публикувате във форумите. Изиграйте няколко игри!</string>
   <string name="subscribe">Абонирай се</string>
   <string name="unsubscribe">Отпиши ме</string>
+  <string name="mentionedYouInX"> Ви спомена в \"%1$s\".</string>
+  <string name="xMentionedYouInY">%1$s Ви спомена в \"%2$s\".</string>
+  <string name="invitedYouToX"> Ви покани на \"%1$s\".</string>
+  <string name="xInvitedYouToY">%1$s Ви покани на \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Сега сте в отбора.</string>
+  <string name="youHaveJoinedTeamX">Присъединихте се към \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Някого когото сте докладвали беше блокиран</string>
+  <string name="congratsYouWon">Поздравления, спечелихте!</string>
+  <string name="gameVsX">Партия срещу %1$s</string>
+  <string name="resVsX">%1$s срещу %2$s</string>
+  <string name="youJustBecamePatron">Станахте Lichess Дарител.</string>
+  <string name="patronAccountExpired">Дарителският Ви статус изтече</string>
+  <string name="pleaseReconsiderRenewIt">Моля подновете подкрепата си!</string>
+  <string name="someoneReviewedYourCoachProfile">Някой прегледа Вашия треньорски профил.</string>
+  <string name="newPendingReview">В очакване на преглед</string>
+  <string name="lostAgainstTOSViolator">Изгубили сте партия срещу някой който е нарушил правилата за ползване на Lichess</string>
+  <string name="refundXpointsTimeControlY">Възстановяване: %1$s %2$s точки.</string>
+  <string name="timeAlmostUp">Времето почти изтече!</string>
 </resources>

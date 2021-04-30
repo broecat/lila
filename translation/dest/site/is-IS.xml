@@ -110,11 +110,8 @@
   <string name="infiniteAnalysis">Djúp greining</string>
   <string name="removesTheDepthLimit">Fjarlægir dýptartakmörk og heldur tölvunni heitri</string>
   <string name="blunder">Afleikur</string>
-  <string name="blunders">Afleikir</string>
   <string name="mistake">Mistök</string>
-  <string name="mistakes">Mistök</string>
   <string name="inaccuracy">Ónákvæmni</string>
-  <string name="inaccuracies">Ónákvæmni</string>
   <string name="moveTimes">leiktími</string>
   <string name="flipBoard">Snúa borði</string>
   <string name="threefoldRepetition">Þreföld endurtekning</string>
@@ -273,7 +270,6 @@
     <item quantity="other">Gefa %s sekúndur</item>
   </plurals>
   <string name="thisAccountViolatedTos">Þessi notandi braut þjónustuskilmálum Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Þessi skákmaður hækkar/lækkar stig sín með vafasömum hætti</string>
   <string name="openingExplorerAndTablebase">Opnunarvafri og endataflsútreikningar</string>
   <string name="takeback">Afturköllun</string>
   <string name="proposeATakeback">Biðja um afturköllun</string>

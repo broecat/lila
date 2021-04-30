@@ -115,11 +115,8 @@
   <string name="infiniteAnalysis">Шектеусіз талдау</string>
   <string name="removesTheDepthLimit">Тереңдік шектеулерін жояды, әрі компьютеріңізді қыздырады</string>
   <string name="blunder">Өрескел қателік</string>
-  <string name="blunders">Өрескел қателер</string>
   <string name="mistake">Қателік</string>
-  <string name="mistakes">Қателер</string>
   <string name="inaccuracy">Жеңіл қате</string>
-  <string name="inaccuracies">Жеңіл қате</string>
   <string name="moveTimes">Жүріс ұзақтығы</string>
   <string name="flipBoard">Тақтаны аудару</string>
   <string name="threefoldRepetition">Үш реттік қайталану</string>
@@ -278,7 +275,6 @@
     <item quantity="other">%s секунд беру</item>
   </plurals>
   <string name="thisAccountViolatedTos">Бұл аккаунт Личес-тің Қызмет көрсету шартын бұзды</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Бұл ойыншы өз рейтингін жасанды жолмен арттырып не кемітіп жүр</string>
   <string name="openingExplorerAndTablebase">Бастаулар мен аяқталулар қоры</string>
   <string name="takeback">Қайтару</string>
   <string name="proposeATakeback">Жүріс қайтаруды сұрау</string>
@@ -759,8 +755,8 @@
   <string name="skipThisMove">Осы жүрісті елемеу</string>
   <string name="next">Келесі</string>
   <string name="xWasPlayed">%s ойналды</string>
-  <string name="findBetterMoveForWhite">Ақтар пайдасына ең дұрыс жүрісті табыңыз</string>
-  <string name="findBetterMoveForBlack">Қаралар пайдасына ең дұрыс жүрісті табыңыз</string>
+  <string name="findBetterMoveForWhite">Ақ пайдасына ең тиімді жүрісті табыңыз</string>
+  <string name="findBetterMoveForBlack">Қара пайдасына ең тиімді жүрісті табыңыз</string>
   <string name="resumeLearning">Үйренуді қорытындылау</string>
   <string name="youCanDoBetter">Тағы талпынып көріңіз</string>
   <string name="tryAnotherMoveForWhite">Ақтар пайдасына басқаша жүріп көріңіз</string>

@@ -115,11 +115,20 @@
   <string name="infiniteAnalysis">Endlose Analyse</string>
   <string name="removesTheDepthLimit">Entfernt die Tiefenbegrenzung und hält deinen Computer warm</string>
   <string name="blunder">Grober Patzer</string>
-  <string name="blunders">Grobe Patzer</string>
   <string name="mistake">Fehler</string>
-  <string name="mistakes">Fehler</string>
   <string name="inaccuracy">Ungenauigkeit</string>
-  <string name="inaccuracies">Ungenauigkeiten</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s grober Patzer</item>
+    <item quantity="other">%s grobe Patzer</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s Fehler</item>
+    <item quantity="other">%s Fehler</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s Ungenauigkeit</item>
+    <item quantity="other">%s Ungenauigkeiten</item>
+  </plurals>
   <string name="moveTimes">Zugzeiten</string>
   <string name="flipBoard">Brett drehen</string>
   <string name="threefoldRepetition">Dreifache Stellungswiederholung</string>
@@ -278,7 +287,6 @@
     <item quantity="other">Dem Gegner %s Sekunden geben</item>
   </plurals>
   <string name="thisAccountViolatedTos">Dieses Konto hat gegen die Lichess-Nutzungsbedingungen verstoßen</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Dieser Spieler manipuliert seine Wertungszahl</string>
   <string name="openingExplorerAndTablebase">Eröffnungsbuch &amp; Tablebase</string>
   <string name="takeback">Zugrücknahme</string>
   <string name="proposeATakeback">Zugrücknahme vorschlagen</string>
@@ -838,4 +846,22 @@
   <string name="youCannotPostYetPlaySomeGames">Du kannst noch nichts in den Foren schreiben. Spiel ein paar Partien!</string>
   <string name="subscribe">Abonnieren</string>
   <string name="unsubscribe">Abonnement beenden</string>
+  <string name="mentionedYouInX"> erwähnte dich in \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s erwähnte dich in \"%2$s\".</string>
+  <string name="invitedYouToX"> hat dich zu \"%1$s\" eingeladen.</string>
+  <string name="xInvitedYouToY">%1$s hat dich zu \"%2$s\" eingeladen.</string>
+  <string name="youAreNowPartOfTeam">Du bist nun Teammitglied.</string>
+  <string name="youHaveJoinedTeamX">Du bist jetzt \"%1$s\" beigetreten.</string>
+  <string name="someoneYouReportedWasBanned">Jemand, den du gemeldet hast, wurde gebannt</string>
+  <string name="congratsYouWon">Herzlichen Glückwunsch, du hast gewonnen!</string>
+  <string name="gameVsX">Partie gegen %1$s</string>
+  <string name="resVsX">%1$s gegen %2$s</string>
+  <string name="youJustBecamePatron">Du wurdest nun ein Lichess-Patron.</string>
+  <string name="patronAccountExpired">Patron-Status abgelaufen</string>
+  <string name="pleaseReconsiderRenewIt">Bitte überlege, ob du es erneuern willst!</string>
+  <string name="someoneReviewedYourCoachProfile">Jemand hat dein Trainerprofil überprüft.</string>
+  <string name="newPendingReview">Neue, ausstehende Rezension</string>
+  <string name="lostAgainstTOSViolator">Du hast gegen jemanden verloren, der gegen die Lichess-Nutzungsbedingungen verstoßen hat</string>
+  <string name="refundXpointsTimeControlY">Rückerstattung: %1$s %2$s Wertungspunkte.</string>
+  <string name="timeAlmostUp">Die Zeit ist fast abgelaufen!</string>
 </resources>

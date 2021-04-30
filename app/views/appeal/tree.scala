@@ -2,12 +2,10 @@ package views.html
 package appeal
 
 import controllers.routes
-import play.api.data.Form
 
 import lila.api.Context
 import lila.app.templating.Environment._
 import lila.app.ui.ScalatagsTemplate._
-import lila.report.Report.Inquiry
 import lila.user.User
 
 object tree {
@@ -81,7 +79,18 @@ object tree {
           "engine-deny",
           deny,
           frag(
-            sendUsAnAppeal,
+            p("You may send us an appeal, and a moderator will review it as soon as possible."),
+            p(strong("What should I write in my appeal?")),
+            p("Be honest and tell us the truth."),
+            p(
+              "Include everything that you think matters for your case. Only send your appeal once, and don't send any additional messages if they don't add anything important to your appeal. Sending additional messages will not get your appeal dealt with any sooner."
+            ),
+            p(
+              "It is important to be honest from the start. If at first you deny doing anything wrong, we'll treat your appeal accordingly, and we will simply disregard any changes in your position. In other words, don't try to deny things at first only to confess to something later on."
+            ),
+            p(
+              "Note that if your appeal is denied, you are not permitted to open additional accounts on Lichess."
+            ),
             newAppeal(deny)
           )
         )
@@ -214,28 +223,48 @@ object tree {
     )
   }
 
+  private def altScreen(implicit ctx: Context) = div(cls := "leaf")(
+    h2("Your account was closed by moderators."),
+    div(cls := "content")(
+      p("Did you create multiple accounts? If so, remember that you promised not to, on the sign up page."),
+      p(
+        "If you violated the terms of service on a previous account, then you are not allowed to make a new one, ",
+        "unless it was explicitly allowed by the moderation team during an appeal."
+      ),
+      p(
+        "If you never violated the terms of service, and didn't make several accounts, then you can appeal this account closure:"
+      )
+    ),
+    newAppeal()
+  )
+
   def apply(me: User, playban: Boolean)(implicit ctx: Context) =
     bits.layout("Appeal a moderation decision") {
       val query = isGranted(_.Appeals) ?? ctx.req.queryString.toMap
       main(cls := "page page-small box box-pad appeal")(
         h1("Appeal"),
         div(cls := "nav-tree")(
-          renderNode(
-            {
-              if (playban || query.contains("playban")) playbanMenu
-              else if (me.marks.engine || query.contains("engine")) engineMenu
-              else if (me.marks.boost || query.contains("boost")) boostMenu
-              else if (me.marks.troll || query.contains("shadowban")) muteMenu
-              else cleanMenu
-            },
-            none
-          )
+          if (me.disabled || query.contains("alt")) altScreen
+          else
+            renderNode(
+              {
+                if (playban || query.contains("playban")) playbanMenu
+                else if (me.marks.engine || query.contains("engine")) engineMenu
+                else if (me.marks.boost || query.contains("boost")) boostMenu
+                else if (me.marks.troll || query.contains("shadowban")) muteMenu
+                else cleanMenu
+              },
+              none
+            )
         ),
         div(cls := "appeal__rules")(
           p(cls := "text", dataIcon := "")(doNotMessageModerators()),
-          a(cls := "text", dataIcon := "", href := routes.Page.loneBookmark("appeal"))(
-            "Read more about the appeal process"
-          )
+          p(
+            a(cls := "text", dataIcon := "", href := routes.Page.loneBookmark("appeal"))(
+              "Read more about the appeal process"
+            )
+          ),
+          p(a(cls := "text", dataIcon := "x", href := routes.Account.data)("Export personal data"))
         )
       )
     }

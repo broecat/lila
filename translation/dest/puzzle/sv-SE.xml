@@ -9,7 +9,7 @@
   <string name="lengths">Längd</string>
   <string name="mates">Mattar</string>
   <string name="goals">Mål</string>
-  <string name="origin" comment="origin&#10;&#10;In this case origin stands for the game the puzzle was found in.">Ursprung</string>
+  <string name="origin">Ursprung</string>
   <string name="specialMoves">Speciella drag</string>
   <string name="didYouLikeThisPuzzle">Gillade du det här problemet?</string>
   <string name="voteToLoadNextOne">Rösta för att ladda nästa!</string>
@@ -50,4 +50,9 @@
   <string name="history">Historik för schackproblem</string>
   <string name="solved">löst</string>
   <string name="failed">olöst</string>
+  <string name="streakDescription">Lös gradvis svårare pussel och bygg en vinstserie. Det finns ingen klocka, så ta din tid. Ett feldrag och spelet är över! Men du kan skippa ett drag per session.</string>
+  <string name="yourStreakX">Din vinstserie: %s</string>
+  <string name="streakSkipExplanation">Skippa detta drag för att bevara din vinstserie! Fungerar bara en gång per spel.</string>
+  <string name="continueTheStreak">Fortsätt vinstserien</string>
+  <string name="newStreak">Ny vinstserie</string>
 </resources>

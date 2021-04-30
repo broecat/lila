@@ -26,7 +26,6 @@ export default function LichessLobby(opts: LobbyOpts) {
       const match = RegExp('[?&]' + name + '=([^&]*)').exec(location.search);
       return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
     };
-  let lobby: any;
   lichess.socket = new lichess.StrongSocket('/lobby/socket/v5', false, {
     receive(t: string, d: any) {
       lobby.socketReceive(t, d);
@@ -68,7 +67,7 @@ export default function LichessLobby(opts: LobbyOpts) {
   opts.blindMode = $('body').hasClass('blind-mode');
   opts.trans = lichess.trans(opts.i18n);
   opts.socketSend = lichess.socket.send;
-  lobby = main(opts);
+  const lobby = main(opts);
 
   const $startButtons = $('.lobby__start'),
     clickEvent = opts.blindMode ? 'click' : 'mousedown';
@@ -79,7 +78,12 @@ export default function LichessLobby(opts: LobbyOpts) {
       $(this).addClass('active').siblings().removeClass('active');
       lichess.loadCssPath('lobby.setup');
       lobby.leavePool();
-      fetch(this.href, {
+      let url = this.href;
+      if (this.dataset.hrefAddon) {
+        url += this.dataset.hrefAddon;
+        delete this.dataset.hrefAddon;
+      }
+      fetch(url, {
         ...xhr.defaultInit,
         headers: xhr.xhrHeader,
       }).then(res =>
@@ -102,7 +106,7 @@ export default function LichessLobby(opts: LobbyOpts) {
     $startButtons
       .find('.config_' + location.hash.replace('#', ''))
       .each(function (this: HTMLElement) {
-        $(this).attr('href', $(this).attr('href') + location.search);
+        this.dataset.hrefAddon = location.search;
       })
       .trigger(clickEvent);
 

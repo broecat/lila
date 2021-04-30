@@ -52,6 +52,16 @@ final class Auth(
       ) map authenticateCookie(sessionId)
     } recoverWith authRecovery
 
+  private def authenticateAppealUser(u: UserModel, redirect: String => Result)(implicit
+      ctx: Context
+  ): Fu[Result] =
+    api.appeal.saveAuthentication(u.id) flatMap { sessionId =>
+      negotiate(
+        html = redirect(routes.Appeal.landing.url).fuccess map authenticateCookie(sessionId),
+        api = _ => NotFound.fuccess
+      )
+    } recoverWith authRecovery
+
   private def authenticateCookie(sessionId: String)(result: Result)(implicit req: RequestHeader) =
     result.withCookies(
       env.lilaCookie.withSession {
@@ -116,7 +126,10 @@ final class Auth(
                           case None => InternalServerError("Authentication error").fuccess
                           case Some(u) if u.disabled =>
                             negotiate(
-                              html = redirectTo(routes.Account.reopen.url).fuccess,
+                              html = env.mod.logApi.closedByMod(u) flatMap {
+                                case true => authenticateAppealUser(u, redirectTo)
+                                case _    => redirectTo(routes.Account.reopen.url).fuccess
+                              },
                               api = _ => Unauthorized(jsonError("This account is closed.")).fuccess
                             )
                           case Some(u) =>
@@ -322,8 +335,8 @@ final class Auth(
   def passwordResetApply =
     OpenBody { implicit ctx =>
       implicit val req = ctx.body
-      env.security.recaptcha.verify() flatMap {
-        _.ok ?? {
+      env.security.hcaptcha.verify() flatMap { captcha =>
+        if (captcha.ok)
           forms.passwordReset.form
             .bindFromRequest()
             .fold(
@@ -340,7 +353,7 @@ final class Auth(
                     Redirect(routes.Auth.passwordResetSent(data.realEmail.conceal)).fuccess
                 }
             )
-        }
+        else BadRequest(renderPasswordReset(none, fail = true)).fuccess
       }
     }
 
@@ -397,33 +410,38 @@ final class Auth(
 
   def magicLink =
     Open { implicit ctx =>
-      Ok(renderMagicLink(none, fail = false)).fuccess
+      Firewall {
+        Ok(renderMagicLink(none, fail = false)).fuccess
+      }
     }
 
   def magicLinkApply =
     OpenBody { implicit ctx =>
-      implicit val req = ctx.body
-      env.security.recaptcha.verify() flatMap {
-        _.ok ?? {
-          forms.magicLink.form
-            .bindFromRequest()
-            .fold(
-              err => BadRequest(renderMagicLink(err.some, fail = true)).fuccess,
-              data =>
-                env.user.repo.enabledWithEmail(data.realEmail.normalize)
-                  flatMap {
-                    case Some((user, storedEmail)) =>
-                      MagicLinkRateLimit(user, storedEmail, ctx.req) {
-                        lila.mon.user.auth.magicLinkRequest("success").increment()
-                        env.security.magicLink.send(user, storedEmail) inject Redirect(
-                          routes.Auth.magicLinkSent(storedEmail.value)
-                        )
-                      }(rateLimitedFu)
-                    case _ =>
-                      lila.mon.user.auth.magicLinkRequest("no_email").increment()
-                      Redirect(routes.Auth.magicLinkSent(data.realEmail.value)).fuccess
-                  }
-            )
+      Firewall {
+        implicit val req = ctx.body
+        env.security.hcaptcha.verify() flatMap { captcha =>
+          if (captcha.ok)
+            forms.magicLink.form
+              .bindFromRequest()
+              .fold(
+                err => BadRequest(renderMagicLink(err.some, fail = true)).fuccess,
+                data =>
+                  env.user.repo.enabledWithEmail(data.realEmail.normalize)
+                    flatMap {
+                      case Some((user, storedEmail)) =>
+                        MagicLinkRateLimit(user, storedEmail, ctx.req) {
+                          lila.mon.user.auth.magicLinkRequest("success").increment()
+                          env.security.magicLink.send(user, storedEmail) inject Redirect(
+                            routes.Auth.magicLinkSent(storedEmail.value)
+                          )
+                        }(rateLimitedFu)
+                      case _ =>
+                        lila.mon.user.auth.magicLinkRequest("no_email").increment()
+                        Redirect(routes.Auth.magicLinkSent(data.realEmail.value)).fuccess
+                    }
+              )
+          else
+            BadRequest(renderMagicLink(none, fail = true)).fuccess
         }
       }
     }
@@ -443,17 +461,19 @@ final class Auth(
 
   def magicLinkLogin(token: String) =
     Open { implicit ctx =>
-      magicLinkLoginRateLimitPerToken(token) {
-        env.security.magicLink confirm token flatMap {
-          case None =>
-            lila.mon.user.auth.magicLinkConfirm("token_fail").increment()
-            notFound
-          case Some(user) =>
-            authLog(user.username, "-", "Magic link")
-            authenticateUser(user) >>-
-              lila.mon.user.auth.magicLinkConfirm("success").increment().unit
-        }
-      }(rateLimitedFu)
+      Firewall {
+        magicLinkLoginRateLimitPerToken(token) {
+          env.security.magicLink confirm token flatMap {
+            case None =>
+              lila.mon.user.auth.magicLinkConfirm("token_fail").increment()
+              notFound
+            case Some(user) =>
+              authLog(user.username, "-", "Magic link")
+              authenticateUser(user) >>-
+                lila.mon.user.auth.magicLinkConfirm("success").increment().unit
+          }
+        }(rateLimitedFu)
+      }
     }
 
   private def loginTokenFor(me: UserModel) = JsonOk {

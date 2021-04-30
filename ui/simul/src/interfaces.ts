@@ -1,4 +1,4 @@
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 
 export type MaybeVNode = VNode | string | null | undefined;
 export type MaybeVNodes = MaybeVNode[];
@@ -11,7 +11,7 @@ export interface SimulOpts {
   $side: Cash;
   socketVersion: number;
   chat: any;
-  i18n: any;
+  i18n: I18nDict;
   socketSend: SocketSend;
 }
 
@@ -35,7 +35,7 @@ export interface SimulData {
 }
 
 export interface Variant {
-  key: string;
+  key: VariantKey;
   name: string;
   icon: string;
 }

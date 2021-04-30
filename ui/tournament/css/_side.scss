@@ -61,6 +61,17 @@
       .refused {
         color: $c-bad;
       }
+
+      .condition:first-child,
+      .condition + .condition {
+        &.accepted::after {
+          content: '\a0\2713';
+        }
+
+        &.refused::after {
+          content: '\a0\2718';
+        }
+      }
     }
   }
 

@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { Redraw, Close, bind, header } from './util';
 import debounce from 'common/debounce';
 import * as xhr from 'common/xhr';
@@ -132,7 +131,7 @@ function applyBackground(data: BackgroundData, list: Background[]) {
     sheet = key == 'darkBoard' ? 'dark' : key;
   $('body').data('theme', sheet);
   $('link[href*=".' + prev + '."]').each(function (this: HTMLLinkElement) {
-    var link = document.createElement('link') as HTMLLinkElement;
+    const link = document.createElement('link') as HTMLLinkElement;
     link.rel = 'stylesheet';
     link.href = this.href.replace('.' + prev + '.', '.' + sheet + '.');
     link.onload = () => setTimeout(() => this.remove(), 100);

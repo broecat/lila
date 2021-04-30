@@ -1,8 +1,7 @@
-import { winningChances } from 'ceval';
-import { DrawShape } from 'chessground/draw';
+import { winningChances, CevalCtrl } from 'ceval';
+import { DrawModifiers, DrawShape } from 'chessground/draw';
 import { Vm } from './interfaces';
 import { Api as CgApi } from 'chessground/api';
-import { CevalCtrl } from 'ceval';
 import { opposite } from 'chessground/util';
 
 interface Opts {
@@ -13,7 +12,7 @@ interface Opts {
   threatMode: boolean;
 }
 
-function makeAutoShapesFromUci(uci: Uci, brush: string, modifiers?: any): DrawShape[] {
+function makeAutoShapesFromUci(uci: Uci, brush: string, modifiers?: DrawModifiers): DrawShape[] {
   return [
     {
       orig: uci.slice(0, 2) as Key,

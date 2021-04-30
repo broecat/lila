@@ -9,6 +9,7 @@
   <string name="yourTurn">Tuum Spatium</string>
   <string name="aiNameLevelAiLevel">%1$s gradus %2$s</string>
   <string name="level">Gradus</string>
+  <string name="strength">Virtus</string>
   <string name="toggleTheChat">Sermonem aperire aut claudere</string>
   <string name="toggleSound">Sonum permittere aut negare</string>
   <string name="chat">Sermo</string>
@@ -107,11 +108,20 @@
   <string name="memory">Memoria</string>
   <string name="infiniteAnalysis">Analysis infinitum</string>
   <string name="blunder">Peccatus</string>
-  <string name="blunders">Gravia errata</string>
   <string name="mistake">Erratum</string>
-  <string name="mistakes">Errata</string>
   <string name="inaccuracy">Menda</string>
-  <string name="inaccuracies">Minuscula errata</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s erratum gravis</item>
+    <item quantity="other">%s errata gravia</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s erratum</item>
+    <item quantity="other">%s errata</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s menda</item>
+    <item quantity="other">%s mendae</item>
+  </plurals>
   <string name="moveTimes">Duratio actionum</string>
   <string name="flipBoard">Tabulam vertere</string>
   <string name="threefoldRepetition">Triplex repetitio</string>
@@ -264,7 +274,6 @@
     <item quantity="one">Da %s secundas</item>
     <item quantity="other">Da %s secundas</item>
   </plurals>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Hic lusor statum falso crescit/decrescit</string>
   <string name="openingExplorerAndTablebase">Explicatio initiorum et finitium</string>
   <string name="takeback">Reversio motus</string>
   <string name="proposeATakeback">Motus reversionem offere</string>
@@ -280,6 +289,10 @@
   <plurals name="nbTournamentPoints">
     <item quantity="one">%s certaminis punctum</item>
     <item quantity="other">%s certaminis puncta</item>
+  </plurals>
+  <plurals name="nbStudies">
+    <item quantity="one">%s notus</item>
+    <item quantity="other">%s noti</item>
   </plurals>
   <string name="viewTournament">Certamen videre</string>
   <string name="backToTournament">Referre ad torneamento</string>

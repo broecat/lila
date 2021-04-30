@@ -1,6 +1,4 @@
-import { h } from 'snabbdom';
-
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { parseFen } from 'chessops/fen';
 import * as chessground from './ground';
 import { bind, onInsert, dataIcon, spinner, bindMobileMousedown } from './util';
@@ -33,7 +31,7 @@ import { render as acplView } from './acpl';
 import AnalyseCtrl from './ctrl';
 import { ConcealOf } from './interfaces';
 import relayManager from './study/relay/relayManagerView';
-import relayIntro from './study/relay/relayIntroView';
+import relayTour from './study/relay/relayTourView';
 import renderPlayerBars from './study/playerBars';
 import serverSideUnderboard from './serverSideUnderboard';
 import * as gridHacks from './gridHacks';
@@ -286,7 +284,7 @@ function controls(ctrl: AnalyseCtrl) {
 }
 
 function forceInnerCoords(ctrl: AnalyseCtrl, v: boolean) {
-  if (ctrl.data.pref.coords == 2) {
+  if (ctrl.data.pref.coords === Prefs.Coords.Outside) {
     $('body').toggleClass('coords-in', v).toggleClass('coords-out', !v);
     changeColorHandle();
   }
@@ -309,7 +307,7 @@ export default function (ctrl: AnalyseCtrl): VNode {
     clocks = !playerBars && renderClocks(ctrl),
     gaugeOn = ctrl.showEvalGauge(),
     needsInnerCoords = !!gaugeOn || !!playerBars,
-    intro = relayIntro(ctrl);
+    tour = relayTour(ctrl);
   return h(
     'main.analyse.variant-' + ctrl.data.game.variant.key,
     {
@@ -337,14 +335,14 @@ export default function (ctrl: AnalyseCtrl): VNode {
         'gauge-on': gaugeOn,
         'has-players': !!playerBars,
         'has-clocks': !!clocks,
-        'has-intro': !!intro,
+        'has-relay-tour': !!tour,
         'analyse-hunter': ctrl.opts.hunter,
       },
     },
     [
       ctrl.keyboardHelp ? keyboardView(ctrl) : null,
       study ? studyView.overboard(study) : null,
-      intro ||
+      tour ||
         h(
           addChapterId(study, 'div.analyse__board.main-board'),
           {
@@ -361,10 +359,10 @@ export default function (ctrl: AnalyseCtrl): VNode {
             renderPromotion(ctrl),
           ]
         ),
-      gaugeOn && !intro ? cevalView.renderGauge(ctrl) : null,
-      menuIsOpen || intro ? null : crazyView(ctrl, ctrl.topColor(), 'top'),
+      gaugeOn && !tour ? cevalView.renderGauge(ctrl) : null,
+      menuIsOpen || tour ? null : crazyView(ctrl, ctrl.topColor(), 'top'),
       gamebookPlayView ||
-        (intro
+        (tour
           ? null
           : h(addChapterId(study, 'div.analyse__tools'), [
               ...(menuIsOpen
@@ -377,9 +375,9 @@ export default function (ctrl: AnalyseCtrl): VNode {
                     retroView(ctrl) || practiceView(ctrl) || explorerView(ctrl),
                   ]),
             ])),
-      menuIsOpen || intro ? null : crazyView(ctrl, ctrl.bottomColor(), 'bottom'),
-      gamebookPlayView || intro ? null : controls(ctrl),
-      ctrl.embed || intro
+      menuIsOpen || tour ? null : crazyView(ctrl, ctrl.bottomColor(), 'bottom'),
+      gamebookPlayView || tour ? null : controls(ctrl),
+      ctrl.embed || tour
         ? null
         : h(
             'div.analyse__underboard',
@@ -389,7 +387,7 @@ export default function (ctrl: AnalyseCtrl): VNode {
             },
             study ? studyView.underboard(ctrl) : [inputs(ctrl)]
           ),
-      intro ? null : acplView(ctrl),
+      tour ? null : acplView(ctrl),
       ctrl.embed
         ? null
         : ctrl.studyPractice
@@ -399,7 +397,7 @@ export default function (ctrl: AnalyseCtrl): VNode {
             {
               hook: onInsert(elm => {
                 ctrl.opts.$side && ctrl.opts.$side.length && $(elm).replaceWith(ctrl.opts.$side);
-                $(elm).append($('.streamers').clone().removeClass('none'));
+                $(elm).append($('.context-streamers').clone().removeClass('none'));
               }),
             },
             ctrl.studyPractice

@@ -104,13 +104,7 @@ final class StudyApi(
 
   def importGame(data: StudyMaker.ImportGame, user: User): Fu[Option[Study.WithChapter]] =
     (data.form.as match {
-      case StudyForm.importGame.AsNewStudy =>
-        studyMaker(data, user) flatMap { res =>
-          studyRepo.insert(res.study) >>
-            chapterRepo.insert(res.chapter) >>-
-            indexStudy(res.study) >>-
-            scheduleTimeline(res.study.id) inject res.some
-        }
+      case StudyForm.importGame.AsNewStudy => create(data, user)
       case StudyForm.importGame.AsChapterOf(studyId) =>
         byId(studyId) flatMap {
           case Some(study) if study.canContribute(user.id) =>
@@ -125,6 +119,20 @@ final class StudyApi(
       _ ?? { sc =>
         Bus.publish(actorApi.StartStudy(sc.study.id), "startStudy")
       }
+    }
+
+  def create(
+      data: StudyMaker.ImportGame,
+      user: User,
+      transform: Study => Study = identity
+  ): Fu[Option[Study.WithChapter]] =
+    studyMaker(data, user) map { sc =>
+      sc.copy(study = transform(sc.study))
+    } flatMap { sc =>
+      studyRepo.insert(sc.study) >>
+        chapterRepo.insert(sc.chapter) >>-
+        indexStudy(sc.study) >>-
+        scheduleTimeline(sc.study.id) inject sc.some
     }
 
   def clone(me: User, prev: Study): Fu[Option[Study]] =
@@ -652,7 +660,12 @@ final class StudyApi(
                 case (Some(_), false) => None
                 case _                => chapter.conceal
               },
-              setup = chapter.setup.copy(orientation = data.realOrientation),
+              setup = chapter.setup.copy(
+                orientation = data.realOrientation match {
+                  case ChapterMaker.Orientation.Fixed(color) => color
+                  case _                                     => chapter.setup.orientation
+                }
+              ),
               description = data.hasDescription option {
                 chapter.description | "-"
               }
@@ -796,7 +809,6 @@ final class StudyApi(
   def like(studyId: Study.Id, v: Boolean)(who: Who): Funit =
     studyRepo.like(studyId, who.u, v) map { likes =>
       sendTo(studyId)(_.setLiking(Study.Liking(likes, v), who))
-      Bus.publish(actorApi.StudyLikes(studyId, likes), "studyLikes")
       if (v) studyRepo byId studyId foreach {
         _ foreach { study =>
           if (who.u != study.ownerId && study.isPublic)
@@ -837,13 +849,6 @@ final class StudyApi(
 
   def adminInvite(studyId: Study.Id, me: Holder): Funit =
     sequenceStudy(studyId) { inviter.admin(_, me) }
-
-  def erase(user: User) =
-    studyRepo.allIdsByOwner(user.id) flatMap { ids =>
-      chatApi.removeAll(ids.map(id => Chat.Id(id.value)))
-      studyRepo.deleteByIds(ids) >>
-        chapterRepo.deleteByStudyIds(ids)
-    }
 
   private def indexStudy(study: Study) =
     Bus.publish(actorApi.SaveStudy(study), "study")

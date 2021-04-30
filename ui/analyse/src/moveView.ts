@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { fixCrazySan } from 'chess';
 import { defined } from 'common';
 import { view as cevalView, renderEval as normalizeEval } from 'ceval';
@@ -32,11 +31,11 @@ export function renderIndex(ply: Ply, withDots?: boolean): VNode {
 }
 
 export function renderMove(ctx: Ctx, node: Tree.Node): VNode[] {
-  const ev: any = cevalView.getBestEval({ client: node.ceval, server: node.eval }) || {};
+  const ev = cevalView.getBestEval({ client: node.ceval, server: node.eval });
   const nodes = [h('san', fixCrazySan(node.san!))];
   if (node.glyphs && ctx.showGlyphs) node.glyphs.forEach(g => nodes.push(renderGlyph(g)));
   if (node.shapes) nodes.push(h('shapes', 'K'));
-  if (ctx.showEval) {
+  if (ev && ctx.showEval) {
     if (defined(ev.cp)) nodes.push(renderEval(normalizeEval(ev.cp)));
     else if (defined(ev.mate)) nodes.push(renderEval('#' + ev.mate));
   }

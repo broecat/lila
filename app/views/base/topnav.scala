@@ -40,6 +40,7 @@ object topnav {
         div(role := "group")(
           a(href := routes.Puzzle.home)(trans.puzzles()),
           a(href := routes.Puzzle.dashboard(30, "home"))(trans.puzzle.puzzleDashboard()),
+          a(href := routes.Puzzle.streak)("Puzzle Streak"),
           a(href := routes.Storm.home)("Puzzle Storm"),
           a(href := routes.Racer.home)("Puzzle Racer")
         )
@@ -63,7 +64,7 @@ object topnav {
           a(href := routes.Tv.index)("Lichess TV"),
           a(href := routes.Tv.games)(trans.currentGames()),
           ctx.noKid option a(href := routes.Streamer.index())(trans.streamersMenu()),
-          a(href := routes.Relay.index())(trans.broadcast.broadcasts()),
+          a(href := routes.RelayTour.index())(trans.broadcast.broadcasts()),
           ctx.noBot option a(href := routes.Video.index)(trans.videoLibrary())
         )
       ),
@@ -73,8 +74,7 @@ object topnav {
           a(href := routes.User.list)(trans.players()),
           a(href := routes.Team.home())(trans.team.teams()),
           ctx.noKid option a(href := routes.ForumCateg.index)(trans.forum()),
-          ctx.me.exists(u => !u.isPatron && !u.kid) option
-            a(href := routes.Plan.index)(trans.patron.donate())
+          ctx.me.exists(!_.kid) option a(href := routes.Plan.index)(trans.patron.donate())
         )
       ),
       st.section(

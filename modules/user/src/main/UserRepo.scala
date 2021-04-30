@@ -24,7 +24,7 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
   def topNbGame(nb: Int): Fu[List[User]] =
     coll.find(enabledSelect).sort($sort desc "count.game").cursor[User]().list(nb)
 
-  def byId(id: ID): Fu[Option[User]] = coll.byId[User](id)
+  def byId(id: ID): Fu[Option[User]] = User.noGhost(id) ?? coll.byId[User](id)
 
   def byIds(ids: Iterable[ID]): Fu[List[User]] = coll.byIds[User](ids)
 
@@ -72,6 +72,10 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       } yield xx -> yy
     }
 
+  def lichessAnd(id: ID) = pair(User.lichessId, id) map2 { case (lichess, user) =>
+    Holder(lichess) -> user
+  }
+
   def namePair(x: ID, y: ID): Fu[Option[(User, User)]] =
     pair(normalize(x), normalize(y))
 
@@ -85,12 +89,15 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     coll.list[User](enabledSelect ++ $inIds(ids), ReadPreference.secondaryPreferred)
 
   def enabledById(id: ID): Fu[Option[User]] =
-    coll.one[User](enabledSelect ++ $id(id))
+    User.noGhost(id) ?? coll.one[User](enabledSelect ++ $id(id))
 
   def disabledById(id: ID): Fu[Option[User]] =
-    coll.one[User](disabledSelect ++ $id(id))
+    User.noGhost(id) ?? coll.one[User](disabledSelect ++ $id(id))
 
-  def named(username: String): Fu[Option[User]] = coll.byId[User](normalize(username))
+  def named(username: String): Fu[Option[User]] =
+    User.noGhost(username) ?? coll.byId[User](normalize(username)).recover {
+      case _: reactivemongo.api.bson.exceptions.BSONValueNotFoundException => none // probably GDPRed user
+    }
 
   def enabledNameds(usernames: List[String]): Fu[List[User]] =
     coll
@@ -211,16 +218,20 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       )
       .void
 
-  private val incStormRuns = $inc("perfs.storm.runs" -> 1)
-  def addStormRun(userId: User.ID, newHighScore: Option[Int]): Funit =
+  def addStormRun  = addStormLikeRun("storm") _
+  def addRacerRun  = addStormLikeRun("racer") _
+  def addStreakRun = addStormLikeRun("streak") _
+
+  private def addStormLikeRun(field: String)(userId: User.ID, score: Int): Funit = {
+    val inc = $inc(s"perfs.$field.runs" -> 1)
     coll.update
       .one(
         $id(userId),
-        newHighScore.fold(incStormRuns) { score =>
-          incStormRuns ++ $set("perfs.storm.score" -> score)
-        }
+        $inc(s"perfs.$field.runs" -> 1) ++
+          $doc("$max"             -> $doc(s"perfs.$field.score" -> score))
       )
       .void
+  }
 
   def setProfile(id: ID, profile: Profile): Funit =
     coll.update
@@ -469,6 +480,16 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
   def prevEmail(id: ID): Fu[Option[EmailAddress]] =
     coll.primitiveOne[EmailAddress]($id(id), F.prevEmail)
 
+  def currentOrPrevEmail(id: ID): Fu[Option[EmailAddress]] =
+    coll
+      .find($id(id), $doc(F.email -> true, F.verbatimEmail -> true, F.prevEmail -> true).some)
+      .one[Bdoc]
+      .map {
+        _ ?? { doc =>
+          anyEmail(doc) orElse doc.getAsOpt[EmailAddress](F.prevEmail)
+        }
+      }
+
   def withEmails(name: String): Fu[Option[User.WithEmails]] =
     coll.find($id(normalize(name))).one[Bdoc].map {
       _ ?? { doc =>
@@ -541,8 +562,9 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
 
   def setPlan(user: User, plan: Plan): Funit = {
     implicit val pbw: BSONWriter[Plan] = Plan.planBSONHandler
-    coll.updateField($id(user.id), "plan", plan).void
+    coll.updateField($id(user.id), User.BSONFields.plan, plan).void
   }
+  def unsetPlan(user: User): Funit = coll.unsetField($id(user.id), User.BSONFields.plan).void
 
   private def docPerf(doc: Bdoc, perfType: PerfType): Option[Perf] =
     doc.child(F.perfs).flatMap(_.getAsOpt[Perf](perfType.key))
@@ -589,12 +611,8 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       ReadPreference.secondaryPreferred
     )
 
-  def filterByRole(userIds: Seq[User.ID], role: String): Fu[Set[User.ID]] =
-    coll.distinctEasy[String, Set](
-      F.id,
-      $inIds(userIds) ++ enabledSelect ++ $doc(F.roles -> role),
-      ReadPreference.secondaryPreferred
-    )
+  def filterEnabled(userIds: Seq[User.ID]): Fu[Set[User.ID]] =
+    coll.distinctEasy[String, Set](F.id, $inIds(userIds) ++ enabledSelect, ReadPreference.secondaryPreferred)
 
   def userIdsWithRoles(roles: List[String]): Fu[Set[User.ID]] =
     coll.distinctEasy[String, Set]("_id", $doc("roles" $in roles))
@@ -633,17 +651,6 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     }
   }
 
-  def erase(user: User): Funit =
-    coll.update
-      .one(
-        $id(user.id),
-        $unset(F.profile, F.email, F.verbatimEmail, F.prevEmail, F.blind) ++ $set(
-          F.enabled  -> false,
-          F.erasedAt -> DateTime.now
-        )
-      )
-      .void
-
   def isErased(user: User): Fu[User.Erased] =
     user.disabled ?? {
       coll.exists($id(user.id) ++ $doc(F.erasedAt $exists true))
@@ -657,6 +664,9 @@ final class UserRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
       $inIds(ids) ++ $or(disabledSelect, F.seenAt $lt since),
       ReadPreference.secondaryPreferred
     )
+
+  def setEraseAt(user: User) =
+    coll.updateField($id(user.id), F.eraseAt, DateTime.now plusDays 1).void
 
   private def newUser(
       username: String,

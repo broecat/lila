@@ -42,7 +42,7 @@ object features {
               "Standard chess and ",
               a(href := routes.Page.variantHome)("8 chess variants (Crazyhouse, Chess960, Horde, ...)")
             ),
-            tr(custom("30 per day"))(
+            tr(custom("35 per day"))(
               "Deep Stockfish 13+ server analysis"
             ),
             tr(unlimited)(
@@ -73,6 +73,9 @@ object features {
             ),
             tr(unlimited)(
               a(href := routes.Puzzle.home)("Tactical puzzles from user games")
+            ),
+            tr(unlimited)(
+              a(href := routes.Puzzle.streak)("Puzzle Streak")
             ),
             tr(unlimited)(
               a(href := routes.Storm.home)("Puzzle Storm")

@@ -1,7 +1,6 @@
 package lila.activity
 
 import lila.db.dsl._
-import lila.db.ignoreDuplicateKey
 import lila.game.Game
 import lila.study.Study
 import lila.user.User
@@ -92,6 +91,17 @@ final class ActivityWriteApi(
         .void
     }
 
+  def streak(userId: User.ID, score: Int): Funit =
+    getOrCreate(userId) flatMap { a =>
+      coll.update
+        .one(
+          $id(a.id),
+          $set(ActivityFields.streak -> { ~a.streak + score }),
+          upsert = true
+        )
+        .void
+    }
+
   def learn(userId: User.ID, stage: String) =
     update(userId) { a =>
       a.copy(learn = Some(~a.learn + Learn.Stage(stage))).some
@@ -165,8 +175,6 @@ final class ActivityWriteApi(
     ranking.map { case (userId, rank) =>
       update(userId) { a => a.copy(swisses = Some(~a.swisses + SwissRank(id, rank))).some }
     }.sequenceFu
-
-  def erase(user: User) = coll.delete.one(regexId(user.id))
 
   private def simulParticipant(simul: lila.simul.Simul, userId: String) =
     update(userId) { a =>

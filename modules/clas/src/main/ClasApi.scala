@@ -2,7 +2,6 @@ package lila.clas
 
 import org.joda.time.DateTime
 import reactivemongo.api._
-import scala.concurrent.duration._
 
 import lila.common.config.BaseUrl
 import lila.common.EmailAddress
@@ -11,6 +10,7 @@ import lila.msg.MsgApi
 import lila.security.Permission
 import lila.user.{ Authenticator, User, UserRepo }
 import lila.user.Holder
+import lila.hub.actorApi.user.KidId
 
 final class ClasApi(
     colls: ClasColls,
@@ -51,7 +51,7 @@ final class ClasApi(
 
     def update(from: Clas, data: ClasForm.ClasData): Fu[Clas] = {
       val clas = data update from
-      userRepo.filterByRole(clas.teachers.toList, Permission.Teacher.dbKey) flatMap { filtered =>
+      userRepo.filterEnabled(clas.teachers.toList) flatMap { filtered =>
         val checked = clas.copy(
           teachers = clas.teachers.toList.filter(filtered.contains).toNel | from.teachers
         )
@@ -76,12 +76,24 @@ final class ClasApi(
     def isTeacherOf(teacher: User, clasId: Clas.Id): Fu[Boolean] =
       coll.exists($id(clasId) ++ $doc("teachers" -> teacher.id))
 
-    def isTeacherOfStudent(teacherId: User.ID, studentId: Student.Id): Fu[Boolean] =
-      fuccess(studentCache.isStudent(studentId.value)) >>&
+    def areKidsInSameClass(kid1: KidId, kid2: KidId): Fu[Boolean] =
+      fuccess(studentCache.isStudent(kid1.id) && studentCache.isStudent(kid2.id)) >>&
+        colls.student.aggregateExists(readPreference = ReadPreference.secondaryPreferred) {
+          implicit framework =>
+            import framework._
+            Match($doc("userId" $in List(kid1.id, kid2.id))) -> List(
+              GroupField("clasId")("nb" -> SumAll),
+              Match($doc("nb" -> 2)),
+              Limit(1)
+            )
+        }
+
+    def isTeacherOf(teacher: User.ID, student: User.ID): Fu[Boolean] =
+      fuccess(studentCache.isStudent(student)) >>&
         colls.student
           .aggregateExists(readPreference = ReadPreference.secondaryPreferred) { implicit framework =>
             import framework._
-            Match($doc("userId" -> studentId.value)) -> List(
+            Match($doc("userId" -> student)) -> List(
               Project($doc("clasId" -> true)),
               PipelineOperator(
                 $doc(
@@ -94,7 +106,7 @@ final class ClasApi(
                           "$expr" -> $doc(
                             "$and" -> $arr(
                               $doc("$eq" -> $arr("$_id", "$$c")),
-                              $doc("$in" -> $arr(teacherId, "$teachers"))
+                              $doc("$in" -> $arr(teacher, "$teachers"))
                             )
                           )
                         )

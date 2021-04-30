@@ -23,6 +23,7 @@ object activity {
             a.puzzles map renderPuzzles(u),
             a.storm map renderStorm,
             a.racer map renderRacer,
+            a.streak map renderStreak,
             a.games map renderGames,
             a.posts map renderPosts,
             a.corresMoves map { case (nb, povs) =>
@@ -81,10 +82,10 @@ object activity {
   private def renderPuzzles(u: User)(p: Puzzles)(implicit ctx: Context) =
     entryTag(
       iconTag("-"),
-      !u.perfs.dubiousPuzzle option scoreFrag(p.score),
+      scoreFrag(p.score),
       div(
         trans.activity.solvedNbPuzzles.pluralSame(p.score.size),
-        p.score.rp.filterNot(_.isEmpty).map(ratingProgFrag)
+        p.score.rp.filterNot(_.isEmpty || (u.perfs.dubiousPuzzle && !ctx.is(u))).map(ratingProgFrag)
       )
     )
 
@@ -105,6 +106,16 @@ object activity {
       div(
         trans.storm.playedNbRunsOfPuzzleStorm
           .plural(s.runs, s.runs.localize, a(href := routes.Racer.home)("Puzzle Racer"))
+      )
+    )
+
+  private def renderStreak(s: Streak)(implicit ctx: Context) =
+    entryTag(
+      iconTag("}"),
+      scoreTag(winTag(trans.storm.highscoreX(strong(s.score)))),
+      div(
+        trans.storm.playedNbRunsOfPuzzleStorm
+          .plural(s.runs, s.runs.localize, a(href := routes.Puzzle.streak)("Puzzle Streak"))
       )
     )
 
@@ -307,7 +318,7 @@ object activity {
   private def renderStream(u: User)(implicit ctx: Context) =
     ctx.noKid option entryTag(
       iconTag(""),
-      a(href := routes.Streamer.show(u.username))(trans.activity.hostedALiveStream())
+      a(href := routes.Streamer.redirect(u.username))(trans.activity.hostedALiveStream())
     )
 
   private def renderSignup(implicit ctx: Context) =
@@ -331,10 +342,7 @@ object activity {
     }
 
   private def ratingProgFrag(r: RatingProg) =
-    ratingTag(
-      r.after.value,
-      ratingProgress(r.diff)
-    )
+    ratingTag(r.after.value, ratingProgress(r.diff))
 
   private def scoreStr(tag: String, p: Int, name: lila.i18n.I18nKey)(implicit ctx: Context) =
     if (p == 0) ""

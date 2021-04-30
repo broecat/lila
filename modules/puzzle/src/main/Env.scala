@@ -3,7 +3,6 @@ package lila.puzzle
 import com.softwaremill.macwire._
 import io.methvin.play.autoconfig._
 import play.api.Configuration
-import scala.concurrent.duration.FiniteDuration
 
 import lila.common.config._
 import lila.db.AsyncColl
@@ -73,6 +72,8 @@ final class Env(
   lazy val replay = wire[PuzzleReplayApi]
 
   lazy val history = wire[PuzzleHistoryApi]
+
+  lazy val streak = wire[PuzzleStreakApi]
 
   def cli =
     new lila.common.Cli {

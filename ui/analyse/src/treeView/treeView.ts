@@ -6,14 +6,12 @@ import isCol1 from 'common/isCol1';
 import throttle from 'common/throttle';
 import { authorText as commentAuthorText } from '../study/studyComments';
 import { enrichText, innerHTML, bindMobileTapHold, clearSelection } from '../util';
-import { h } from 'snabbdom';
-import { Hooks } from 'snabbdom/hooks';
+import { h, Hooks, VNode } from 'snabbdom';
 import { isEmpty, defined } from 'common';
 import { MaybeVNodes, ConcealOf } from '../interfaces';
 import { path as treePath } from 'tree';
 import { playable } from 'game';
 import { storedProp, StoredProp } from 'common/storage';
-import { VNode } from 'snabbdom/vnode';
 
 export interface Ctx {
   ctrl: AnalyseCtrl;
@@ -90,9 +88,10 @@ export function nodeClasses(ctx: Ctx, node: Tree.Node, path: Tree.Path): NodeCla
 }
 
 export function findCurrentPath(c: AnalyseCtrl): Tree.Path | undefined {
+  let cur;
   return (
     (!c.synthetic && playable(c.data) && c.initialPath) ||
-    (c.retro && c.retro.current() && c.retro.current().prev.path) ||
+    (c.retro && (cur = c.retro.current()) && cur.prev.path) ||
     (c.study && c.study.data.chapter.relay && c.study.data.chapter.relay.path)
   );
 }
@@ -154,8 +153,8 @@ export function mainHook(ctrl: AnalyseCtrl): Hooks {
   };
 }
 
-export function retroLine(ctx: Ctx, node: Tree.Node, opts: Opts): VNode | undefined {
-  return node.comp && ctx.ctrl.retro && ctx.ctrl.retro.hideComputerLine(node, opts.parentPath)
+export function retroLine(ctx: Ctx, node: Tree.Node): VNode | undefined {
+  return node.comp && ctx.ctrl.retro && ctx.ctrl.retro.hideComputerLine(node)
     ? h('line', ctx.ctrl.trans.noarg('learnFromThisMistake'))
     : undefined;
 }
@@ -178,4 +177,4 @@ export const autoScroll = throttle(200, (ctrl: AnalyseCtrl, el: HTMLElement) => 
   cont.scrollTop = target.offsetTop - cont.offsetHeight / 2 + target.offsetHeight;
 });
 
-export const nonEmpty = (x: any): boolean => !!x;
+export const nonEmpty = (x: unknown): boolean => !!x;

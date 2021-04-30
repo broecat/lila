@@ -2,7 +2,7 @@ import AnalyseCtrl from '../../ctrl';
 import { path as treePath, ops as treeOps } from 'tree';
 import { makeShapesFromUci } from '../../autoShape';
 
-type Feedback = 'play' | 'good' | 'bad' | 'end';
+export type Feedback = 'play' | 'good' | 'bad' | 'end';
 
 export interface State {
   feedback: Feedback;
@@ -84,11 +84,12 @@ export default class GamebookPlayCtrl {
       case 'bad':
         this.retry();
         break;
-      case 'end':
+      case 'end': {
         const s = this.root.study!,
           c = s.nextChapter();
         if (c) s.setChapter(c.id);
         break;
+      }
       default:
         this.next();
     }

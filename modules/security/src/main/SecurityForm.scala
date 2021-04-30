@@ -14,7 +14,7 @@ final class SecurityForm(
     authenticator: lila.user.Authenticator,
     emailValidator: EmailAddressValidator,
     lameNameCheck: LameNameCheck,
-    recaptchaPublicConfig: RecaptchaPublicConfig
+    hcaptchaPublicConfig: HcaptchaPublicConfig
 )(implicit ec: scala.concurrent.ExecutionContext) {
 
   import SecurityForm._
@@ -64,7 +64,10 @@ final class SecurityForm(
         )
       )
       .verifying("usernameUnacceptable", u => !lameNameCheck.value || !LameName.username(u))
-      .verifying("usernameAlreadyUsed", u => !userRepo.nameExists(u).await(3 seconds, "signupUsername"))
+      .verifying(
+        "usernameAlreadyUsed",
+        u => !User.isGhost(u) && !userRepo.nameExists(u).await(3 seconds, "signupUsername")
+      )
 
     private val agreementBool = boolean.verifying(b => b)
 
@@ -77,7 +80,7 @@ final class SecurityForm(
 
     val emailField = withAcceptableDns(acceptableUniqueEmail(none))
 
-    val website = RecaptchaForm(
+    val website = HcaptchaForm(
       Form(
         mapping(
           "username"  -> username,
@@ -87,8 +90,7 @@ final class SecurityForm(
           "fp"        -> optional(nonEmptyText)
         )(SignupData.apply)(_ => None)
       ),
-      "signup-form",
-      recaptchaPublicConfig
+      hcaptchaPublicConfig
     )
 
     val mobile = Form(
@@ -100,14 +102,13 @@ final class SecurityForm(
     )
   }
 
-  val passwordReset = RecaptchaForm(
+  val passwordReset = HcaptchaForm(
     Form(
       mapping(
         "email" -> sendableEmail // allow unacceptable emails for BC
       )(PasswordReset.apply)(_ => None)
     ),
-    "password-reset-form",
-    recaptchaPublicConfig
+    hcaptchaPublicConfig
   )
 
   val newPassword = Form(
@@ -130,14 +131,13 @@ final class SecurityForm(
     )
   )
 
-  val magicLink = RecaptchaForm(
+  val magicLink = HcaptchaForm(
     Form(
       mapping(
         "email" -> sendableEmail // allow unacceptable emails for BC
       )(MagicLink.apply)(_ => None)
     ),
-    "magic-link-form",
-    recaptchaPublicConfig
+    hcaptchaPublicConfig
   )
 
   def changeEmail(u: User, old: Option[EmailAddress]) =
@@ -207,15 +207,14 @@ final class SecurityForm(
 
   def toggleKid = passwordProtected _
 
-  val reopen = RecaptchaForm(
+  val reopen = HcaptchaForm(
     Form(
       mapping(
         "username" -> LilaForm.cleanNonEmptyText,
         "email"    -> sendableEmail // allow unacceptable emails for BC
       )(Reopen.apply)(_ => None)
     ),
-    "reopen-form",
-    recaptchaPublicConfig
+    hcaptchaPublicConfig
   )
 
   private def passwordMapping(candidate: User.LoginCandidate) =

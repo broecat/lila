@@ -115,11 +115,8 @@
   <string name="infiniteAnalysis">Senfina analizo</string>
   <string name="removesTheDepthLimit">Forigas la profundlimon, kaj tenas vian komputilon varma</string>
   <string name="blunder">Erarego</string>
-  <string name="blunders">Eraregoj</string>
   <string name="mistake">Eraro</string>
-  <string name="mistakes">Eraroj</string>
   <string name="inaccuracy">Erareto</string>
-  <string name="inaccuracies">Eraretoj</string>
   <string name="moveTimes">Movaj tempoj</string>
   <string name="flipBoard">Rotacii tabulon</string>
   <string name="threefoldRepetition">Triobla ripeto</string>
@@ -278,7 +275,6 @@
     <item quantity="other">Doni %s sekundojn</item>
   </plurals>
   <string name="thisAccountViolatedTos">Ĉi tiu konto malobservis la Kondiĉojn de Servo de Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Tiu ĉi ludanto fripone (mal)pligrandigas sian rangon</string>
   <string name="openingExplorerAndTablebase">Esplorilo de malfermoj &amp; tablobazo</string>
   <string name="takeback">Repreno</string>
   <string name="proposeATakeback">Proponi reprenon</string>

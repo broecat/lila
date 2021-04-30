@@ -5,6 +5,7 @@ import keyboard from './keyboard';
 import makePromotion from './promotion';
 import moveTest from './moveTest';
 import PuzzleSession from './session';
+import PuzzleStreak from './streak';
 import throttle from 'common/throttle';
 import { Api as CgApi } from 'chessground/api';
 import { build as treeBuild, ops as treeOps, path as treePath, TreeWrapper } from 'tree';
@@ -23,24 +24,37 @@ import { Role, Move, Outcome } from 'chessops/types';
 import { storedProp } from 'common/storage';
 
 export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
-  let vm: Vm = {
+  const vm: Vm = {
     next: defer<PuzzleData>(),
   } as Vm;
   let data: PuzzleData, tree: TreeWrapper, ceval: CevalCtrl;
-  const autoNext = storedProp('puzzle.autoNext', false);
+  const hasStreak = !!opts.data.streak;
+  const autoNext = storedProp(`puzzle.autoNext${hasStreak ? '.streak' : ''}`, hasStreak);
   const ground = prop<CgApi | undefined>(undefined) as Prop<CgApi>;
   const threatMode = prop(false);
-  const session = new PuzzleSession(opts.data.theme.key, opts.data.user?.id);
+  const streak = opts.data.streak ? new PuzzleStreak(opts.data) : undefined;
+  if (streak)
+    opts.data = {
+      ...opts.data,
+      ...streak.data.current,
+    };
+  const session = new PuzzleSession(opts.data.theme.key, opts.data.user?.id, hasStreak);
 
   // required by ceval
   vm.showComputer = () => vm.mode === 'view';
   vm.showAutoShapes = () => true;
 
   const throttleSound = (name: string) => throttle(100, () => lichess.sound.play(name));
+  const loadSound = (file: string, volume?: number, delay?: number) => {
+    setTimeout(() => lichess.sound.loadOggOrMp3(file, `${lichess.sound.baseUrl}/${file}`), delay || 1000);
+    return () => lichess.sound.play(file, volume);
+  };
   const sound = {
     move: throttleSound('move'),
     capture: throttleSound('capture'),
     check: throttleSound('check'),
+    good: loadSound('lisp/PuzzleStormGood', 0.7, 500),
+    end: loadSound('lisp/PuzzleStormEnd', 1, 1000),
   };
 
   function setPath(path: Tree.Path): void {
@@ -216,11 +230,19 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
       vm.lastFeedback = 'fail';
       revertUserMove();
       if (vm.mode === 'play') {
-        vm.canViewSolution = true;
-        vm.mode = 'try';
-        sendResult(false);
+        if (streak) {
+          vm.mode = 'view';
+          streak.onComplete(false);
+          setTimeout(viewSolution, 500);
+          sound.end();
+        } else {
+          vm.canViewSolution = true;
+          vm.mode = 'try';
+          sendResult(false);
+        }
       }
     } else if (progress == 'win') {
+      if (streak) sound.good();
       vm.lastFeedback = 'win';
       if (vm.mode != 'view') {
         const sent = vm.mode == 'play' ? sendResult(true) : Promise.resolve();
@@ -241,7 +263,7 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
     if (vm.resultSent) return Promise.resolve();
     vm.resultSent = true;
     session.complete(data.puzzle.id, win);
-    return xhr.complete(data.puzzle.id, data.theme.key, win, data.replay).then((res: PuzzleResult) => {
+    return xhr.complete(data.puzzle.id, data.theme.key, win, data.replay, streak).then((res: PuzzleResult) => {
       if (res?.replayComplete && data.replay) return lichess.redirect(`/training/dashboard/${data.replay.days}`);
       if (res?.next.user && data.user) {
         data.user.rating = res.next.user.rating;
@@ -251,6 +273,7 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
       }
       if (win) speech.success();
       vm.next.resolve(res.next);
+      if (streak && win) streak.onComplete(true, res.next);
       redraw();
     });
   }
@@ -259,7 +282,7 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
     ceval.stop();
     vm.next.promise.then(initiate).then(redraw);
 
-    if (!data.replay) {
+    if (!streak && !data.replay) {
       const path = `/training/${data.theme.key}`;
       if (location.pathname != path) history.replaceState(null, '', path);
     }
@@ -319,16 +342,9 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
     ceval.start(vm.path, vm.nodeList, threatMode());
   });
 
-  function nextNodeBest() {
-    return treeOps.withMainlineChild(vm.node, function (n) {
-      // return n.eval ? n.eval.pvs[0].moves[0] : null;
-      return n.eval ? n.eval.best : undefined;
-    });
-  }
+  const nextNodeBest = () => treeOps.withMainlineChild(vm.node, n => n.eval?.best);
 
-  function getCeval() {
-    return ceval;
-  }
+  const getCeval = () => ceval;
 
   function toggleCeval(): void {
     ceval.toggle();
@@ -366,7 +382,7 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
           if (vm.node.san!.includes('x')) sound.capture();
           else sound.move();
         }
-        if (/\+|\#/.test(vm.node.san!)) sound.check();
+        if (/\+|#/.test(vm.node.san!)) sound.check();
       }
       threatMode(false);
       ceval.stop();
@@ -408,6 +424,16 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
       redraw();
     }, 500);
   }
+
+  const skip = () => {
+    if (!streak || !streak.data.skip || vm.mode != 'play') return;
+    streak.skip();
+    userJump(treePath.fromNodeList(vm.mainline));
+    const moveIndex = treePath.size(vm.path) - treePath.size(vm.initialPath);
+    const solution = data.puzzle.solution[moveIndex];
+    playUci(solution);
+    playBestMove();
+  };
 
   const vote = (v: boolean) => {
     if (!vm.voteDisabled) {
@@ -516,5 +542,7 @@ export default function (opts: PuzzleOpts, redraw: Redraw): Controller {
       dynamic: opts.themes.dynamic.split(' '),
       static: new Set(opts.themes.static.split(' ')),
     },
+    streak,
+    skip,
   };
 }

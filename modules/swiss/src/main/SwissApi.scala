@@ -93,8 +93,8 @@ final class SwissApi(
       val swiss =
         old.copy(
           name = data.name | old.name,
-          clock = data.clock,
-          variant = data.realVariant,
+          clock = if (old.isCreated) data.clock else old.clock,
+          variant = if (old.isCreated && data.variant.isDefined) data.realVariant else old.variant,
           startsAt = data.startsAt.ifTrue(old.isCreated) | old.startsAt,
           nextRoundAt =
             if (old.isCreated) Some(data.startsAt | old.startsAt)
@@ -474,7 +474,7 @@ final class SwissApi(
 
   def kill(swiss: Swiss): Funit = {
     if (swiss.isStarted)
-      finish(swiss) >>- systemChat(swiss.id, s"Tournament forcefully terminated by the director.")
+      finish(swiss) >>- systemChat(swiss.id, s"Tournament cancelled by its creator.")
     else if (swiss.isCreated) destroy(swiss)
     else funit
   } >>- cache.featuredInTeam.invalidate(swiss.teamId)
@@ -510,7 +510,7 @@ final class SwissApi(
         lila.common.Future.applySequentially(ids) { id =>
           Sequencing(id)(notFinishedById) { swiss =>
             if (swiss.round.value >= swiss.settings.nbRounds) doFinish(swiss)
-            else if (swiss.nbPlayers >= 4)
+            else if (swiss.nbPlayers >= 2)
               director.startRound(swiss).flatMap {
                 _.fold {
                   systemChat(swiss.id, "All possible pairings were played.")

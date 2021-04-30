@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { isEmpty } from 'common';
 import { fixCrazySan } from 'chess';
 import { path as treePath, ops as treeOps } from 'tree';
@@ -15,10 +14,10 @@ import {
   renderInlineCommentsOf,
   truncateComment,
   retroLine,
+  Ctx as BaseCtx,
+  Opts as BaseOpts,
 } from './treeView';
 import { enrichText, innerHTML } from '../util';
-import { Ctx as BaseCtx, Opts as BaseOpts } from './treeView';
-import { renderGlyph } from '../moveView';
 
 interface Ctx extends BaseCtx {
   concealOf: ConcealOf;
@@ -29,8 +28,8 @@ interface Opts extends BaseOpts {
 }
 
 function emptyMove(conceal?: Conceal): VNode {
-  const c = {};
-  if (conceal) c[conceal as string] = true;
+  const c: { conceal?: true; hide?: true } = {};
+  if (conceal) c[conceal] = true;
   return h(
     'move.empty',
     {
@@ -114,7 +113,7 @@ function renderLines(ctx: Ctx, nodes: Tree.Node[], opts: Opts): VNode {
     },
     nodes.map(n => {
       return (
-        retroLine(ctx, n, opts) ||
+        retroLine(ctx, n) ||
         h(
           'line',
           renderMoveAndChildrenOf(ctx, n, {
@@ -154,7 +153,7 @@ function renderVariationMoveOf(ctx: Ctx, node: Tree.Node, opts: Opts): VNode {
     content: MaybeVNodes = [withIndex ? moveView.renderIndex(node.ply, true) : null, fixCrazySan(node.san!)],
     classes = nodeClasses(ctx, node, path);
   if (opts.conceal) classes[opts.conceal as string] = true;
-  if (node.glyphs) node.glyphs.forEach(g => content.push(renderGlyph(g)));
+  if (node.glyphs) node.glyphs.forEach(g => content.push(moveView.renderGlyph(g)));
   return h(
     'move',
     {

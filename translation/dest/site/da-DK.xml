@@ -115,11 +115,20 @@
   <string name="infiniteAnalysis">Uendelig analyse</string>
   <string name="removesTheDepthLimit">Fjerner dybdegrænsen, og holder din computer varm</string>
   <string name="blunder">Brøler</string>
-  <string name="blunders">Brølere</string>
   <string name="mistake">Fejl</string>
-  <string name="mistakes">Fejl</string>
   <string name="inaccuracy">Unøjagtighed</string>
-  <string name="inaccuracies">Unøjagtigheder</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s brøler</item>
+    <item quantity="other">%s brølere</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s fejl</item>
+    <item quantity="other">%s fejl</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s unøjagtighed</item>
+    <item quantity="other">%s unøjagtigheder</item>
+  </plurals>
   <string name="moveTimes">Træktider</string>
   <string name="flipBoard">Vend bræt</string>
   <string name="threefoldRepetition">Trefoldig gentagelse</string>
@@ -278,7 +287,6 @@
     <item quantity="other">Giv %s sekunder</item>
   </plurals>
   <string name="thisAccountViolatedTos">Denne konto overtrådte Lichess servicevilkår</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Denne spiller forøger eller sænker sin rating kunstigt</string>
   <string name="openingExplorerAndTablebase">Åbner åbnings- og slutspilsbog</string>
   <string name="takeback">Omtræk</string>
   <string name="proposeATakeback">Foreslå et omtræk</string>
@@ -627,7 +635,7 @@
   <string name="simulAddExtraTime">Du kan tilføje ekstra tid til dit ur for at hjælpe med at klare simultanspillet.</string>
   <string name="simulHostExtraTime">Ekstra tid til værtsuret</string>
   <string name="lichessTournaments">Lichess-turneringer</string>
-  <string name="tournamentFAQ">Arena-turnering FAQ</string>
+  <string name="tournamentFAQ">Arenaturnering FAQ</string>
   <string name="tournamentOfficial">Officiel</string>
   <string name="timeBeforeTournamentStarts">Tid før turnering starter</string>
   <string name="averageCentipawnLoss">Gennemsnitligt centibonde-tab</string>
@@ -838,4 +846,22 @@
   <string name="youCannotPostYetPlaySomeGames">Du kan endnu ikke lave oplag i foraene. Spil nogle partier!</string>
   <string name="subscribe">Abonnér</string>
   <string name="unsubscribe">Ophæv abonnement</string>
+  <string name="mentionedYouInX"> nævnte dig i \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s nævnte dig i \"%2$s\".</string>
+  <string name="invitedYouToX"> inviterede dig til \"%1$s\".</string>
+  <string name="xInvitedYouToY">%1$s inviterede dig til \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Du er nu en del af holdet.</string>
+  <string name="youHaveJoinedTeamX">Du har sluttet dig til \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Nogen du rapporterede blev udelukket</string>
+  <string name="congratsYouWon">Tillykke, du vandt!</string>
+  <string name="gameVsX">Spil mod %1$s</string>
+  <string name="resVsX">%1$s mod %2$s</string>
+  <string name="youJustBecamePatron">Du er lige blevet en Lichess Patron.</string>
+  <string name="patronAccountExpired">Patron-konto udløbet</string>
+  <string name="pleaseReconsiderRenewIt">Overvej venligst at forny den!</string>
+  <string name="someoneReviewedYourCoachProfile">Nogen har gennemgået din trænerprofil.</string>
+  <string name="newPendingReview">Ny afventende gennemgang</string>
+  <string name="lostAgainstTOSViolator">Du tabte til en person, der overtrådte Lichess brugerbetingelserne</string>
+  <string name="refundXpointsTimeControlY">Refunderet: %1$s %2$s ratingpoint.</string>
+  <string name="timeAlmostUp">Tiden er næsten udløbet!</string>
 </resources>

@@ -1,4 +1,4 @@
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 import { PresetCtrl } from './preset';
 import { Prop } from 'common';
 
@@ -12,7 +12,7 @@ export interface ChatOpts {
   public: boolean;
   permissions: Permissions;
   timeoutReasons?: ModerationReason[];
-  i18n: { [key: string]: string | undefined };
+  i18n: I18nDict;
   preset?: string;
   noteId?: string;
   noteText?: string;

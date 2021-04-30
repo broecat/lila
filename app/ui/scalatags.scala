@@ -24,6 +24,8 @@ trait ScalatagsAttrs {
   val datetimeAttr   = attr("datetime")
   val dataBotAttr    = attr("data-bot").empty
   val deferAttr      = attr("defer").empty
+  val downloadAttr   = attr("download").empty
+
   object frame {
     val scrolling       = attr("scrolling")
     val allowfullscreen = attr("allowfullscreen").empty
@@ -31,7 +33,7 @@ trait ScalatagsAttrs {
 
   val dataSortNumberTh = th(attr("data-sort-method") := "number")
   val dataSort         = attr("data-sort")
-  val dataSortDefault  = attr("data-sort-default") := "1"
+  val dataSortDefault  = attr("data-sort-default").empty
 }
 
 // collection of lila snippets
@@ -142,7 +144,7 @@ trait ScalatagsExtensions {
 
   val targetBlank: Modifier = (t: Builder) => {
     // Prevent tab nabbing when opening untrusted links. Apply also to trusted
-    // links, because there can be a small peformance advantage and lila does
+    // links, because there can be a small performance advantage and lila does
     // not use window.opener anywhere. Will not be overwritten by additional
     // rels.
     t.setAttr("rel", Builder.GenericAttrValueSource("noopener"))

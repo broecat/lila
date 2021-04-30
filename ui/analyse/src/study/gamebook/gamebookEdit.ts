@@ -2,10 +2,8 @@ import * as control from '../../control';
 import AnalyseCtrl from '../../ctrl';
 import throttle from 'common/throttle';
 import { bind, iconTag } from '../../util';
-import { h } from 'snabbdom';
-import { Hooks } from 'snabbdom/hooks';
+import { h, Hooks, VNode } from 'snabbdom';
 import { MaybeVNodes } from '../../interfaces';
-import { VNode } from 'snabbdom/vnode';
 
 export function running(ctrl: AnalyseCtrl): boolean {
   return (
@@ -162,11 +160,11 @@ const saveNode = throttle(500, (ctrl: AnalyseCtrl, gamebook: Tree.Gamebook) => {
   ctrl.redraw();
 });
 
-function nodeGamebookValue(node: Tree.Node, field: string): string {
+function nodeGamebookValue(node: Tree.Node, field: 'deviation' | 'hint'): string {
   return (node.gamebook && node.gamebook[field]) || '';
 }
 
-function textareaHook(ctrl: AnalyseCtrl, field: string): Hooks {
+function textareaHook(ctrl: AnalyseCtrl, field: 'deviation' | 'hint'): Hooks {
   const value = nodeGamebookValue(ctrl.node, field);
   return {
     insert(vnode: VNode) {
@@ -176,7 +174,7 @@ function textareaHook(ctrl: AnalyseCtrl, field: string): Hooks {
         const node = ctrl.node;
         node.gamebook = node.gamebook || {};
         node.gamebook[field] = el.value.trim();
-        saveNode(ctrl, node.gamebook, 50);
+        saveNode(ctrl, node.gamebook);
       };
       vnode.data!.path = ctrl.path;
     },

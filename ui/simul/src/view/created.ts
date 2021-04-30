@@ -1,10 +1,9 @@
-import { h } from 'snabbdom';
+import { h, VNode } from 'snabbdom';
 import SimulCtrl from '../ctrl';
 import { Applicant } from '../interfaces';
 import xhr from '../xhr';
 import * as util from './util';
 import modal from 'common/modal';
-import { VNode } from 'snabbdom/vnode';
 
 export default function (showText: (ctrl: SimulCtrl) => VNode) {
   return (ctrl: SimulCtrl) => {
@@ -58,7 +57,9 @@ export default function (showText: (ctrl: SimulCtrl) => VNode) {
                           }
                         }),
                   },
-                  ctrl.teamBlock() ? ctrl.trans('mustBeInTeam', ctrl.data.team.name) : ctrl.trans('join')
+                  ctrl.teamBlock() && ctrl.data.team
+                    ? ctrl.trans('mustBeInTeam', ctrl.data.team.name)
+                    : ctrl.trans('join')
                 )
             : h(
                 'a.button.text',
@@ -192,7 +193,9 @@ export default function (showText: (ctrl: SimulCtrl) => VNode) {
           ]),
         ]
       ),
-      h('blockquote.pull-quote', [h('p', ctrl.data.quote.text), h('footer', ctrl.data.quote.author)]),
+      ctrl.data.quote
+        ? h('blockquote.pull-quote', [h('p', ctrl.data.quote.text), h('footer', ctrl.data.quote.author)])
+        : null,
       h(
         'div.continue-with.none',
         ctrl.data.variants.map(function (variant) {

@@ -70,7 +70,8 @@ object side {
         teamLink(s.teamId),
         if (verdicts.relevant)
           st.section(
-            dataIcon := "7",
+            dataIcon := (if (ctx.isAuth && verdicts.accepted) "E"
+                         else "L"),
             cls := List(
               "conditions" -> true,
               "accepted"   -> (ctx.isAuth && verdicts.accepted),
@@ -82,10 +83,11 @@ object side {
               verdicts.list map { v =>
                 p(
                   cls := List(
-                    "condition text" -> true,
-                    "accepted"       -> v.verdict.accepted,
-                    "refused"        -> !v.verdict.accepted
-                  )
+                    "condition" -> true,
+                    "accepted"  -> (ctx.isAuth && v.verdict.accepted),
+                    "refused"   -> (ctx.isAuth && !v.verdict.accepted)
+                  ),
+                  title := v.verdict.reason.map(_(ctx.lang))
                 )(v.condition.name(s.perfType))
               }
             )

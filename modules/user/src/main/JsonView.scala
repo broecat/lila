@@ -22,8 +22,7 @@ final class JsonView(isOnline: lila.socket.IsOnline) {
         "createdAt" -> u.createdAt
       )
       .add("disabled" -> u.disabled)
-      .add("tosViolation" -> u.marks.engine)
-      .add("booster" -> u.marks.boost)
+      .add("tosViolation" -> u.lame)
       .add("profile" -> u.profile.map(p => profileWrites.writes(p).noNull))
       .add("seenAt" -> u.seenAt)
       .add("patron" -> u.isPatron)
@@ -41,8 +40,7 @@ final class JsonView(isOnline: lila.socket.IsOnline) {
       )
       .add("title" -> u.title)
       .add("disabled" -> u.disabled)
-      .add("tosViolation" -> u.marks.engine)
-      .add("booster" -> u.marks.boost)
+      .add("tosViolation" -> u.lame)
       .add("language" -> u.lang)
       .add("profile" -> u.profile.flatMap(_.country).map { country =>
         Json.obj("country" -> country)
@@ -113,6 +111,18 @@ object JsonView {
       u.perfs.storm.nonEmpty option Json.obj(
         "runs"  -> u.perfs.storm.runs,
         "score" -> u.perfs.storm.score
+      )
+    ).add(
+      "racer",
+      u.perfs.racer.nonEmpty option Json.obj(
+        "runs"  -> u.perfs.racer.runs,
+        "score" -> u.perfs.racer.score
+      )
+    ).add(
+      "streak",
+      u.perfs.streak.nonEmpty option Json.obj(
+        "runs"  -> u.perfs.streak.runs,
+        "score" -> u.perfs.streak.score
       )
     )
 

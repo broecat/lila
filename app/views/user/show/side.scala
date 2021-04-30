@@ -35,7 +35,7 @@ object side {
         },
         span(
           h3(perfType.trans),
-          if (isPuzzle && u.perfs.dubiousPuzzle) st.rating("?")
+          if (isPuzzle && u.perfs.dubiousPuzzle && !ctx.is(u)) st.rating("?")
           else
             st.rating(
               if (perf.glicko.clueless) strong("?")
@@ -70,7 +70,7 @@ object side {
         showPerf(u.perfs.rapid, PerfType.Rapid),
         showPerf(u.perfs.classical, PerfType.Classical),
         showPerf(u.perfs.correspondence, PerfType.Correspondence),
-        br,
+        u.hasVariantRating option hr,
         showNonEmptyPerf(u.perfs.crazyhouse, PerfType.Crazyhouse),
         showNonEmptyPerf(u.perfs.chess960, PerfType.Chess960),
         showNonEmptyPerf(u.perfs.kingOfTheHill, PerfType.KingOfTheHill),
@@ -79,9 +79,13 @@ object side {
         showNonEmptyPerf(u.perfs.atomic, PerfType.Atomic),
         showNonEmptyPerf(u.perfs.horde, PerfType.Horde),
         showNonEmptyPerf(u.perfs.racingKings, PerfType.RacingKings),
-        br,
-        u.noBot option showPerf(u.perfs.puzzle, PerfType.Puzzle),
-        u.noBot option showStorm(u.perfs.storm, u)
+        u.noBot option frag(
+          hr,
+          showPerf(u.perfs.puzzle, PerfType.Puzzle),
+          showStorm(u.perfs.storm, u),
+          showRacer(u.perfs.racer, u),
+          showStreak(u.perfs.streak, u)
+        )
       )
     )
   }
@@ -100,6 +104,46 @@ object side {
           storm.nonEmpty option frag(
             " ",
             span(trans.storm.xRuns.plural(storm.runs, storm.runs.localize))
+          )
+        )
+      ),
+      iconTag("G")
+    )
+
+  private def showRacer(racer: lila.rating.Perf.Racer, user: User)(implicit lang: Lang) =
+    a(
+      dataIcon := ',',
+      cls := List(
+        "empty" -> !racer.nonEmpty
+      ),
+      href := routes.Racer.home,
+      span(
+        h3("Puzzle Racer"),
+        st.rating(
+          strong(racer.score),
+          racer.nonEmpty option frag(
+            " ",
+            span(trans.storm.xRuns.plural(racer.runs, racer.runs.localize))
+          )
+        )
+      ),
+      iconTag("G")
+    )
+
+  private def showStreak(streak: lila.rating.Perf.Streak, user: User)(implicit lang: Lang) =
+    a(
+      dataIcon := '}',
+      cls := List(
+        "empty" -> !streak.nonEmpty
+      ),
+      href := routes.Puzzle.streak,
+      span(
+        h3("Puzzle Streak"),
+        st.rating(
+          strong(streak.score),
+          streak.nonEmpty option frag(
+            " ",
+            span(trans.storm.xRuns.plural(streak.runs, streak.runs.localize))
           )
         )
       ),

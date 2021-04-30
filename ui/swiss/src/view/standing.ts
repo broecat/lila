@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import SwissCtrl from '../ctrl';
 import { player as renderPlayer, bind, onInsert } from './util';
 import { MaybeVNodes, Player, Pager } from '../interfaces';
@@ -53,7 +52,7 @@ function playerTr(ctrl: SwissCtrl, player: Player) {
                     p.o ? '*' : p.w === true ? '1' : p.w === false ? '0' : '½'
                   )
             )
-            .concat([...Array(ctrl.data.nbRounds - player.sheet.length)].map(_ => h('r')))
+            .concat([...Array(Math.max(0, ctrl.data.nbRounds - player.sheet.length))].map(_ => h('r')))
         )
       ),
       h('td.points', title('Points'), '' + player.points),

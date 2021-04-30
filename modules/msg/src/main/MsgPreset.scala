@@ -1,7 +1,5 @@
 package lila.msg
 
-import lila.common.config.BaseUrl
-
 case class MsgPreset(name: String, text: String)
 
 object MsgPreset {

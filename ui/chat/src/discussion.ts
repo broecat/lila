@@ -1,12 +1,11 @@
-import * as enhance from './enhance';
+import * as enhance from 'common/richText';
 import * as spam from './spam';
 import { Ctrl, Line } from './interfaces';
 import { flag } from './xhr';
-import { h, thunk } from 'snabbdom';
+import { h, thunk, VNode, VNodeData } from 'snabbdom';
 import { lineAction as modLineAction } from './moderation';
 import { presetView } from './preset';
 import { userLink } from './util';
-import { VNode, VNodeData } from 'snabbdom/vnode';
 
 const whisperRegex = /^\/[wW](?:hisper)?\s/;
 
@@ -89,36 +88,45 @@ function renderInput(ctrl: Ctrl): VNode | undefined {
 let mouchListener: EventListener;
 
 const setupHooks = (ctrl: Ctrl, chatEl: HTMLInputElement) => {
-  const storage = lichess.tempStorage.make('chatInput');
-  if (storage.get()) {
-    chatEl.value = storage.get()!;
-    storage.remove();
+  const storage = lichess.tempStorage.make('chat.input');
+  const previousText = storage.get();
+  if (previousText) {
+    chatEl.value = previousText;
     chatEl.focus();
+    if (!ctrl.opts.public && previousText.match(whisperRegex)) chatEl.classList.add('whisper');
   }
 
-  chatEl.addEventListener('keypress', (e: KeyboardEvent) =>
+  chatEl.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key !== 'Enter') return;
+
     setTimeout(() => {
       const el = e.target as HTMLInputElement,
         txt = el.value,
         pub = ctrl.opts.public;
-      storage.set(el.value);
-      if (e.which == 10 || e.which == 13) {
-        if (txt === '')
-          $('.keyboard-move input').each(function (this: HTMLInputElement) {
-            this.focus();
-          });
-        else {
-          if (!ctrl.opts.kobold) spam.selfReport(txt);
-          if (pub && spam.hasTeamUrl(txt)) alert("Please don't advertise teams in the chat.");
-          else ctrl.post(txt);
-          el.value = '';
-          storage.remove();
-          if (!pub) el.classList.remove('whisper');
-        }
-      } else {
-        el.removeAttribute('placeholder');
-        if (!pub) el.classList.toggle('whisper', !!txt.match(whisperRegex));
+
+      if (txt === '')
+        $('.keyboard-move input').each(function (this: HTMLInputElement) {
+          this.focus();
+        });
+      else {
+        if (!ctrl.opts.kobold) spam.selfReport(txt);
+        if (pub && spam.hasTeamUrl(txt)) alert("Please don't advertise teams in the chat.");
+        else ctrl.post(txt);
+        el.value = '';
+        storage.remove();
+        if (!pub) el.classList.remove('whisper');
       }
+    });
+  });
+
+  chatEl.addEventListener('input', (e: KeyboardEvent) =>
+    setTimeout(() => {
+      const el = e.target as HTMLInputElement,
+        txt = el.value;
+
+      el.removeAttribute('placeholder');
+      if (!ctrl.opts.public) el.classList.toggle('whisper', !!txt.match(whisperRegex));
+      storage.set(txt);
     })
   );
 
@@ -150,8 +158,8 @@ function sameLines(l1: Line, l2: Line) {
 }
 
 function selectLines(ctrl: Ctrl): Array<Line> {
-  let prev: Line,
-    ls: Array<Line> = [];
+  const ls: Array<Line> = [];
+  let prev: Line | undefined;
   ctrl.data.lines.forEach(line => {
     if (
       !line.d &&

@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import TournamentController from '../ctrl';
 import { TournamentData, MaybeVNodes } from '../interfaces';
 import * as pagination from '../pagination';
@@ -19,7 +18,8 @@ function confetti(data: TournamentData): VNode | undefined {
     });
 }
 
-function stats(data: TournamentData, noarg: any): VNode {
+function stats(data: TournamentData, trans: Trans): VNode {
+  const noarg = trans.noarg;
   const tableData = [
     numberRow(noarg('averageElo'), data.stats.averageRating, 'raw'),
     numberRow(noarg('gamesPlayed'), data.stats.games),
@@ -47,7 +47,7 @@ function stats(data: TournamentData, noarg: any): VNode {
                   href: `/tournament/${data.id}/teams`,
                 },
               },
-              `View all ${Object.keys(data.teamBattle.teams).length} teams`
+              trans('viewAllXTeams', Object.keys(data.teamBattle.teams).length)
             ),
             h('br'),
           ]
@@ -58,6 +58,7 @@ function stats(data: TournamentData, noarg: any): VNode {
           attrs: {
             'data-icon': 'x',
             href: `/api/tournament/${data.id}/games`,
+            download: true,
           },
         },
         'Download all games'
@@ -68,6 +69,7 @@ function stats(data: TournamentData, noarg: any): VNode {
           attrs: {
             'data-icon': 'x',
             href: `/api/tournament/${data.id}/results`,
+            download: true,
           },
         },
         'Download results'
@@ -105,6 +107,6 @@ export function table(ctrl: TournamentController): VNode | undefined {
     : ctrl.teamInfo.requested
     ? teamInfo(ctrl)
     : stats
-    ? stats(ctrl.data, ctrl.trans.noarg)
+    ? stats(ctrl.data, ctrl.trans)
     : undefined;
 }

@@ -4,9 +4,8 @@ import * as cg from 'chessground/types';
 import { DrawShape } from 'chessground/draw';
 import * as xhr from './xhr';
 import { key2pos } from 'chessground/util';
-import { bind } from './util';
+import { bind, onInsert } from './util';
 import RoundController from './ctrl';
-import { onInsert } from './util';
 import { MaybeVNode } from './interfaces';
 
 interface Promoting {
@@ -47,7 +46,9 @@ export function start(
     if (
       !meta.ctrlKey &&
       !promoting &&
-      (d.pref.autoQueen === 3 || (d.pref.autoQueen === 2 && premovePiece) || ctrl.keyboardMove?.justSelected())
+      (d.pref.autoQueen === Prefs.AutoQueen.Always ||
+        (d.pref.autoQueen === Prefs.AutoQueen.OnPremove && premovePiece) ||
+        ctrl.keyboardMove?.justSelected())
     ) {
       if (premovePiece) setPrePromotion(ctrl, dest, 'queen');
       else sendPromotion(ctrl, orig, dest, 'queen', meta);
@@ -111,9 +112,9 @@ function renderPromotion(
   color: Color,
   orientation: Color
 ): MaybeVNode {
-  var left = (7 - key2pos(dest)[0]) * 12.5;
+  let left = (7 - key2pos(dest)[0]) * 12.5;
   if (orientation === 'white') left = 87.5 - left;
-  var vertical = color === orientation ? 'top' : 'bottom';
+  const vertical = color === orientation ? 'top' : 'bottom';
 
   return h(
     'div#promotion-choice.' + vertical,
@@ -127,7 +128,7 @@ function renderPromotion(
       }),
     },
     roles.map((serverRole, i) => {
-      var top = (color === orientation ? i : 7 - i) * 12.5;
+      const top = (color === orientation ? i : 7 - i) * 12.5;
       return h(
         'square',
         {

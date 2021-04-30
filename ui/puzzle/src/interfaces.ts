@@ -3,15 +3,16 @@ import { Api as CgApi } from 'chessground/api';
 import { CevalCtrl, NodeEvals } from 'ceval';
 import { Config as CgConfig } from 'chessground/config';
 import { Deferred } from 'common/defer';
-import { Outcome } from 'chessops/types';
+import { Outcome, Role, Move } from 'chessops/types';
 import { Prop } from 'common';
-import { Role, Move } from 'chessops/types';
 import { StoredBooleanProp } from 'common/storage';
 import { TreeWrapper } from 'tree';
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
+import PuzzleStreak from './streak';
 
 export type MaybeVNode = VNode | string | null | undefined;
 export type MaybeVNodes = MaybeVNode[];
+export type PuzzleId = string;
 
 export type Redraw = () => void;
 
@@ -58,11 +59,14 @@ export interface Controller extends KeyboardController {
   pref: PuzzlePrefs;
   difficulty?: PuzzleDifficulty;
   userMove(orig: Key, dest: Key): void;
-  promotion: any;
+  promotion: Promotion;
   autoNext: StoredBooleanProp;
   autoNexting: () => boolean;
   session: PuzzleSession;
   allThemes?: AllThemes;
+
+  streak?: PuzzleStreak;
+  skip(): void;
 
   path?: Tree.Path;
   autoScrollRequested?: boolean;
@@ -94,7 +98,7 @@ export interface Vm {
 export interface PuzzleOpts {
   pref: PuzzlePrefs;
   data: PuzzleData;
-  i18n: { [key: string]: string | undefined };
+  i18n: I18nDict;
   difficulty?: PuzzleDifficulty;
   themes?: {
     dynamic: string;
@@ -103,7 +107,7 @@ export interface PuzzleOpts {
 }
 
 export interface PuzzlePrefs {
-  coords: 0 | 1 | 2;
+  coords: Prefs.Coords;
   is3d: boolean;
   destination: boolean;
   rookCastle: boolean;
@@ -128,6 +132,7 @@ export interface PuzzleData {
   game: PuzzleGame;
   user: PuzzleUser | undefined;
   replay?: PuzzleReplay;
+  streak?: string;
 }
 
 export interface PuzzleReplay {
@@ -162,7 +167,7 @@ export interface PuzzleUser {
 }
 
 export interface Puzzle {
-  id: string;
+  id: PuzzleId;
   solution: Uci[];
   rating: number;
   plays: number;

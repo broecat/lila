@@ -3,7 +3,6 @@ package lila.study
 import akka.stream.scaladsl._
 import chess.format.pgn.Tags
 import reactivemongo.akkastream.cursorProducer
-import reactivemongo.api._
 import reactivemongo.api.bson._
 
 import lila.db.AsyncColl
@@ -97,15 +96,7 @@ final class ChapterRepo(val coll: AsyncColl)(implicit
     }
 
   def nextOrderByStudy(studyId: Study.Id): Fu[Int] =
-    coll(
-      _.primitiveOne[Int](
-        $studyId(studyId),
-        $sort desc "order",
-        "order"
-      )
-    ) dmap { order =>
-      ~order + 1
-    }
+    coll(_.primitiveOne[Int]($studyId(studyId), $sort desc "order", "order")) dmap { ~_ + 1 }
 
   def setConceal(chapterId: Chapter.Id, conceal: Chapter.Ply) =
     coll(_.updateField($id(chapterId), "conceal", conceal)).void

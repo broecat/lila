@@ -121,11 +121,8 @@
   <string name="infiniteAnalysis">Neskončna analiza</string>
   <string name="removesTheDepthLimit">Odstrani omejitev globine in ohrani računalnik topel</string>
   <string name="blunder">Spodrsljaj</string>
-  <string name="blunders">Spodrsljaji</string>
   <string name="mistake">Napaka</string>
-  <string name="mistakes">Napake</string>
   <string name="inaccuracy">Nenatančnost</string>
-  <string name="inaccuracies">Nenatančnosti</string>
   <string name="moveTimes">Časi za poteze</string>
   <string name="flipBoard">Obrni igralno desko</string>
   <string name="threefoldRepetition">Trikratna ponovitev</string>
@@ -312,7 +309,6 @@
     <item quantity="other">Dodaj %s sekund</item>
   </plurals>
   <string name="thisAccountViolatedTos">Uporabnik tega računa je kršil pogoje uporabe Lichessa</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Igralec je umetno zvišal/znižal svoj rating</string>
   <string name="openingExplorerAndTablebase">Odpri brskalnik otvoritev &amp; baz</string>
   <string name="takeback">Popravek poteze</string>
   <string name="proposeATakeback">Zaprosi za popravek poteze</string>
@@ -915,4 +911,21 @@ v %3$s</string>
   <string name="youCannotPostYetPlaySomeGames">Ne moreš še objavljati na forumu. Igraj nekaj iger!</string>
   <string name="subscribe">Naroči se</string>
   <string name="unsubscribe">Odjava</string>
+  <string name="mentionedYouInX"> vas je omenil v \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s vas je omenil v \"%2$s\".</string>
+  <string name="xInvitedYouToY">%1$s vas vabi v \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Zdaj ste del ekipe.</string>
+  <string name="youHaveJoinedTeamX">Pridružili ste se \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Nekdo, za katerega ste poročali, je bil prepovedan</string>
+  <string name="congratsYouWon">Čestitke, zmagali ste!</string>
+  <string name="gameVsX">Igra proti %1$s</string>
+  <string name="resVsX">%1$s proti %2$s</string>
+  <string name="youJustBecamePatron">Postali ste pokrovitelj Lichess.</string>
+  <string name="patronAccountExpired">Račun pokrovitelja je potekel</string>
+  <string name="pleaseReconsiderRenewIt">Prosimo, razmislite o podaljšanju!</string>
+  <string name="someoneReviewedYourCoachProfile">Nekdo je pregledal vaš profil trenerja.</string>
+  <string name="newPendingReview">Novo čakanje na pregled</string>
+  <string name="lostAgainstTOSViolator">Izgubili ste z nekom, ki je kršil Pogoje storitev Lichess</string>
+  <string name="refundXpointsTimeControlY">Vračilo: %1$s %2$s ocenjevalne točke.</string>
+  <string name="timeAlmostUp">Čas je skoraj pošel!</string>
 </resources>

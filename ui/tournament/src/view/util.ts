@@ -1,7 +1,4 @@
-import { Attrs } from 'snabbdom/modules/attributes';
-import { h } from 'snabbdom';
-import { Hooks } from 'snabbdom/hooks';
-import { VNode } from 'snabbdom/vnode';
+import { Attrs, h, Hooks, VNode } from 'snabbdom';
 import { numberFormat } from 'common/number';
 
 export function bind(eventName: string, f: (e: Event) => any, redraw?: () => void): Hooks {
@@ -36,7 +33,7 @@ export function playerName(p) {
   return p.title ? [h('span.utitle', p.title), ' ' + p.name] : p.name;
 }
 
-export function player(p, asLink: boolean, withRating: boolean, defender: boolean = false, leader: boolean = false) {
+export function player(p, asLink: boolean, withRating: boolean, defender = false, leader = false) {
   return h(
     'a.ulpt.user-link' + (((p.title || '') + p.name).length > 15 ? '.long' : ''),
     {

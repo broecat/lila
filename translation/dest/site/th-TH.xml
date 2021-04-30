@@ -111,11 +111,11 @@
   <string name="infiniteAnalysis">การวิเคราะห์อนันต์</string>
   <string name="removesTheDepthLimit">ไม่จำกัดความลึก อาจทำให้เครื่องร้อน</string>
   <string name="blunder">พลาดมหันต์</string>
-  <string name="blunders">พลาดมหันต์</string>
   <string name="mistake">พลาด</string>
-  <string name="mistakes">พลาด</string>
   <string name="inaccuracy">ไม่แม่นยำ</string>
-  <string name="inaccuracies">ไม่แม่นยำ</string>
+  <plurals name="nbBlunders">
+    <item quantity="other">%s พลาดมหันต์</item>
+  </plurals>
   <string name="moveTimes">เวลาที่ใช้ในการเดิน</string>
   <string name="flipBoard">หมุนกระดาน</string>
   <string name="threefoldRepetition">เดินซ้ำสามรอบ</string>
@@ -260,7 +260,6 @@
     <item quantity="other">ให้ %s วินาที</item>
   </plurals>
   <string name="thisAccountViolatedTos">This account violated the Lichess Terms of Service</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">ผู้เล่นรายนี้เพิ่ม/ลดระดับคะแนนตัวเองโดยทุจริต</string>
   <string name="openingExplorerAndTablebase">ตัวสำรวจการเปิด &amp; ฐานตาราง</string>
   <string name="takeback">เดินใหม่</string>
   <string name="proposeATakeback">ขอเดินใหม่</string>
@@ -774,4 +773,6 @@
   <string name="classical">คลาสสิก</string>
   <string name="important">สำคัญ</string>
   <string name="yourQuestionMayHaveBeenAnswered">คำถามของคุณอาจจะมีคำตอบแล้ว%1$s</string>
+  <string name="someoneYouReportedWasBanned">ผู้เล่นที่คุณรายงานถูกแบนแล้ว</string>
+  <string name="timeAlmostUp">เวลาใกล้จะหมดแล้ว</string>
 </resources>

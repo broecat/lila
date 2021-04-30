@@ -115,11 +115,8 @@
   <string name="infiniteAnalysis">अनंत विश्लेषण</string>
   <string name="removesTheDepthLimit">गहराई सीमा को निकालता है, और आपके कंप्यूटर को गर्म रखता है</string>
   <string name="blunder">भयंकर गलती</string>
-  <string name="blunders">गंभीर गल्तियां</string>
   <string name="mistake">गलती</string>
-  <string name="mistakes">गलतियाँ</string>
   <string name="inaccuracy">गलती</string>
-  <string name="inaccuracies">त्रुटियाँ</string>
   <string name="moveTimes">चाल समय</string>
   <string name="flipBoard">बोर्ड पलटें</string>
   <string name="threefoldRepetition">तीन बार दोहराव</string>
@@ -278,7 +275,6 @@
     <item quantity="other">%s सेकंड्स दें</item>
   </plurals>
   <string name="thisAccountViolatedTos">इस खाते ने सेवा की शर्तों का उल्लंघन किया</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">यह खिलाड़ी धोखे से अपने अंक बदलता है</string>
   <string name="openingExplorerAndTablebase">ओपनिंग एक्सप्लोरर &amp; टेबलबेस</string>
   <string name="takeback">चाल को वापस लें</string>
   <string name="proposeATakeback">चाल को वापस लेने की प्रस्ताव को भेजें</string>
@@ -843,4 +839,22 @@
   <string name="youCannotPostYetPlaySomeGames">आप अभी तक फ़ोरम में पोस्ट नहीं कर सकते। कुछ गेम्स खेलें!</string>
   <string name="subscribe">सदस्यता लें</string>
   <string name="unsubscribe">सदस्यता रद्द करें</string>
+  <string name="mentionedYouInX"> आपने \"%1$s\" में उल्लेख किया है।</string>
+  <string name="xMentionedYouInY"> %1$s ने \"%2$s\" में आपका उल्लेख किया।</string>
+  <string name="invitedYouToX"> आपको \"%1$s\" के लिए आमंत्रित किया गया है।</string>
+  <string name="xInvitedYouToY">%1$s ने आपको \"%2$s\" के लिए आमंत्रित किया।</string>
+  <string name="youAreNowPartOfTeam">अब आप टीम का हिस्सा हैं।</string>
+  <string name="youHaveJoinedTeamX">आप \"%1$s\" में शामिल हो गए हैं।</string>
+  <string name="someoneYouReportedWasBanned">आपके द्वारा सूचित किसी पर प्रतिबंध लगा दिया गया था</string>
+  <string name="congratsYouWon">बधाई हो, आप जीत गए!</string>
+  <string name="gameVsX">खेल बनाम %1$s</string>
+  <string name="resVsX">%1$s बनाम %2$s</string>
+  <string name="youJustBecamePatron">आप बस एक लिशेस पैट्रन बन गए।</string>
+  <string name="patronAccountExpired">Patron खाता समाप्त हो गया</string>
+  <string name="pleaseReconsiderRenewIt">कृपया इसे नवीनीकृत करने पर विचार करें!</string>
+  <string name="someoneReviewedYourCoachProfile">किसी ने आपके कोच प्रोफ़ाइल की समीक्षा की।</string>
+  <string name="newPendingReview">नई लंबित समीक्षा</string>
+  <string name="lostAgainstTOSViolator">आप Lichess TOS का उल्लंघन करने वाले व्यक्ति से हार गए</string>
+  <string name="refundXpointsTimeControlY">%1$s %2$s वापसी की</string>
+  <string name="timeAlmostUp">समय लगभग समाप्त है!</string>
 </resources>

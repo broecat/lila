@@ -89,17 +89,17 @@ final class SlackApi(
       )
     )
 
-  def monitorMod(modId: User.ID, icon: String, text: String): Funit =
+  def monitorMod(modId: User.ID, icon: String, text: String, monitorType: MonitorType): Funit =
     lightUser(modId) flatMap {
       _ ?? { mod =>
-        client(
+        val msg =
           SlackMessage(
             username = mod.name,
             icon = "scroll",
             text = s":$icon: ${linkifyUsers(text)}",
-            channel = "tavern-monitor"
+            channel = rooms.tavernMonitor(monitorType)
           )
-        )
+        client(msg) >> client(msg.copy(channel = rooms.tavernMonitorAll))
       }
     }
 
@@ -111,11 +111,14 @@ final class SlackApi(
             username = mod.name,
             icon = "scroll",
             text = s":$icon: ${linkifyUsers(text)}",
-            channel = "tavern-log"
+            channel = rooms.tavernLog
           )
         )
       }
     }
+
+  def printBan(mod: Holder, print: String, userIds: List[User.ID]): Funit =
+    logMod(mod.id, "footprints", s"Ban print $print of ${userIds} users: ${userIds map linkifyUsers}")
 
   def chatPanic(mod: Holder, v: Boolean): Funit =
     client(
@@ -197,6 +200,16 @@ final class SlackApi(
       )
     )
 
+  def gdprErase(user: User): Funit =
+    client(
+      SlackMessage(
+        username = user.username,
+        icon = "scream2",
+        text = "GDPR erasure scheduled",
+        channel = rooms.gdprLog
+      )
+    )
+
   private def link(url: String, name: String)         = s"<$url|$name>"
   private def lichessLink(path: String, name: String) = s"<https://lichess.org$path|$name>"
   private def userLink(name: String): String          = lichessLink(s"/@/$name?mod", name)
@@ -265,46 +278,31 @@ final class SlackApi(
         channel = rooms.general
       )
     )
-
-  def signup(
-      user: User,
-      email: EmailAddress,
-      ip: IpAddress,
-      fp: Option[String],
-      apiVersion: Option[ApiVersion],
-      susp: Boolean
-  ) =
-    client(
-      SlackMessage(
-        username = "lichess",
-        icon = "musical_note",
-        text = {
-          val link      = userLink(user.username)
-          val emailLink = lichessLink(s"/mod/search?q=${email.value}", email.value)
-          val ipLink    = lichessLink(s"/mod/search?q=$ip", ip.value)
-          val fpLink    = fp.fold("none")(print => lichessLink(s"/mod/print/$print", print))
-          s"$link EMAIL: $emailLink IP: $ipLink FP: $fpLink${susp ?? " *proxy*"}${apiVersion
-            .??(v => s" API v$v")}"
-        },
-        channel = rooms.signups
-      )
-    )
 }
 
-private object SlackApi {
+object SlackApi {
 
-  object rooms {
-    val general      = "team"
-    val tavern       = "tavern"
-    val tavernBots   = "tavern-bots"
-    val tavernNotes  = "tavern-notes"
-    val tavernAppeal = "tavern-appeal"
-    val signups      = "signups"
-    val broadcast    = "broadcast"
-    val devNoise     = "dev-noise"
+  sealed trait MonitorType
+  object MonitorType {
+    case object Hunt  extends MonitorType
+    case object Comm  extends MonitorType
+    case object Other extends MonitorType
   }
 
-  object stage {
+  private[irc] object rooms {
+    val general                         = "team"
+    val tavern                          = "tavern"
+    val tavernBots                      = "tavern-bots"
+    val tavernNotes                     = "tavern-notes"
+    val tavernAppeal                    = "tavern-appeal"
+    val tavernLog                       = "tavern-log"
+    val broadcast                       = "broadcast"
+    def tavernMonitor(tpe: MonitorType) = s"tavern-monitor-${tpe.toString.toLowerCase}"
+    val tavernMonitorAll                = "tavern-monitor-all"
+    val gdprLog                         = "gdpr-log"
+  }
+
+  private[irc] object stage {
     val name = "stage.lichess.org"
     val icon = "volcano"
   }

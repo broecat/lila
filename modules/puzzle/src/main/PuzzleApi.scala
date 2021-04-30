@@ -6,11 +6,9 @@ import scala.concurrent.duration._
 
 import lila.common.paginator.Paginator
 import lila.common.config.MaxPerPage
-import lila.db.AsyncColl
 import lila.db.dsl._
 import lila.db.paginator.Adapter
-import lila.memo.CacheApi
-import lila.user.{ User, UserRepo }
+import lila.user.User
 
 final class PuzzleApi(
     colls: PuzzleColls,
@@ -44,12 +42,12 @@ final class PuzzleApi(
       }
   }
 
-  object round {
+  private[puzzle] object round {
 
     def find(user: User, puzzleId: Puzzle.Id): Fu[Option[PuzzleRound]] =
       colls.round(_.byId[PuzzleRound](PuzzleRound.Id(user.id, puzzleId).toString))
 
-    def exists(user: User, puzzleId: Puzzle.Id): Fu[Boolean] =
+    private[PuzzleApi] def exists(user: User, puzzleId: Puzzle.Id): Fu[Boolean] =
       colls.round(_.exists($id(PuzzleRound.Id(user.id, puzzleId).toString)))
 
     def upsert(r: PuzzleRound, theme: PuzzleTheme.Key): Funit = {
@@ -178,7 +176,10 @@ final class PuzzleApi(
 
     private def key(user: User, id: Puzzle.Id) = s"${user.id}:${id}"
 
-    def set(user: User, id: Puzzle.Id) = store.put(key(user, id))
+    def setCasualIfNotYetPlayed(user: User, puzzle: Puzzle): Funit =
+      !round.exists(user, puzzle.id) map {
+        _ ?? store.put(key(user, puzzle.id))
+      }
 
     def apply(user: User, id: Puzzle.Id) = store.get(key(user, id))
   }

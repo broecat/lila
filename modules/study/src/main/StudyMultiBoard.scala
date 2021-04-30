@@ -8,7 +8,6 @@ import com.github.blemale.scaffeine.AsyncLoadingCache
 import JsonView._
 import play.api.libs.json._
 import reactivemongo.api.bson._
-import reactivemongo.api.ReadPreference
 import scala.concurrent.duration._
 
 import lila.common.config.MaxPerPage
@@ -30,6 +29,8 @@ final class StudyMultiBoard(
     if (page == 1 && !playing) firstPageCache.get(studyId)
     else fetch(studyId, page, playing)
   } map { PaginatorJson(_) }
+
+  def invalidate(studyId: Study.Id): Unit = firstPageCache.synchronous().invalidate(studyId)
 
   private val firstPageCache: AsyncLoadingCache[Study.Id, Paginator[ChapterPreview]] =
     cacheApi.scaffeine

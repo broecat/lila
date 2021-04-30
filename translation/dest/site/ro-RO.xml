@@ -118,11 +118,23 @@
   <string name="infiniteAnalysis">Analiză infinită</string>
   <string name="removesTheDepthLimit">Elimină limita de adâncime (și încălzește computerul)</string>
   <string name="blunder">Gafă</string>
-  <string name="blunders">Gafe</string>
   <string name="mistake">Greșeală</string>
-  <string name="mistakes">Greșeli</string>
   <string name="inaccuracy">Inexactitate</string>
-  <string name="inaccuracies">Inexactități</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s gafă</item>
+    <item quantity="few">%s gafe</item>
+    <item quantity="other">%s de gafe</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s greșeală</item>
+    <item quantity="few">%s greșeli</item>
+    <item quantity="other">%s de greșeli</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s inexactitate</item>
+    <item quantity="few">%s inexactități</item>
+    <item quantity="other">%s de inexactități</item>
+  </plurals>
   <string name="moveTimes">Timpii de mutare</string>
   <string name="flipBoard">Rotiţi tabla</string>
   <string name="threefoldRepetition">Repetare de trei ori</string>
@@ -295,7 +307,6 @@
     <item quantity="other">Acordă %s secunde</item>
   </plurals>
   <string name="thisAccountViolatedTos">Acest cont a încălcat condițiile de utilizare ale site-ului Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Jucătorul și-a crescut ratingul în mod artificial</string>
   <string name="openingExplorerAndTablebase">Deschide exploratorul &amp; baza de date</string>
   <string name="takeback">Revocare</string>
   <string name="proposeATakeback">Propune revocarea mutării</string>
@@ -875,4 +886,22 @@
   <string name="youCannotPostYetPlaySomeGames">Încă nu puteți posta în forumuri. Jucați câteva partide!</string>
   <string name="subscribe">Abonați-vă</string>
   <string name="unsubscribe">Dezabonați-vă</string>
+  <string name="mentionedYouInX"> te-a menționat în \"%1$s\".</string>
+  <string name="xMentionedYouInY"> %1$s te-a menționat în \"%2$s\".</string>
+  <string name="invitedYouToX"> te-a invitat la \"%1$s\".</string>
+  <string name="xInvitedYouToY">%1$s te-a invitat la \"%2$s\".</string>
+  <string name="youAreNowPartOfTeam">Acum faci parte din echipă.</string>
+  <string name="youHaveJoinedTeamX">V-ați alăturat la \"%1$s\".</string>
+  <string name="someoneYouReportedWasBanned">Cineva pe care l-ai raportat a fost banat</string>
+  <string name="congratsYouWon">Felicitări, ați câștigat!</string>
+  <string name="gameVsX">Joc vs %1$s</string>
+  <string name="resVsX">%1$s vs %2$s</string>
+  <string name="youJustBecamePatron">Tocmai ai devenit Patron Lichess.</string>
+  <string name="patronAccountExpired">Contul Patron a expirat</string>
+  <string name="pleaseReconsiderRenewIt">Vă rugăm să luați în considerare reînnoirea acestuia!</string>
+  <string name="someoneReviewedYourCoachProfile">Cineva a verificat profilul tău de antrenor.</string>
+  <string name="newPendingReview">Revizuire nouă în așteptare</string>
+  <string name="lostAgainstTOSViolator">Ai pierdut în fața cuiva care a încălcat Termenii și Condițiile Lichess</string>
+  <string name="refundXpointsTimeControlY">Rambursare: %1$s puncte de evaluare %2$s.</string>
+  <string name="timeAlmostUp">Timpul se apropie de sfârșit!</string>
 </resources>

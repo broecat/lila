@@ -38,11 +38,14 @@ final class Env(
     "finishPuzzle" -> { case res: lila.puzzle.Puzzle.UserResult =>
       write.puzzle(res).unit
     },
-    "stormRun" -> { case lila.hub.actorApi.storm.StormRun(userId, score) =>
+    "stormRun" -> { case lila.hub.actorApi.puzzle.StormRun(userId, score) =>
       write.storm(userId, score).unit
     },
-    "racerRun" -> { case lila.hub.actorApi.racer.RacerRun(userId, score) =>
+    "racerRun" -> { case lila.hub.actorApi.puzzle.RacerRun(userId, score) =>
       write.racer(userId, score).unit
+    },
+    "streakRun" -> { case lila.hub.actorApi.puzzle.StreakRun(userId, score) =>
+      write.streak(userId, score).unit
     }
   )
 
@@ -56,7 +59,6 @@ final class Env(
     "relation",
     "startStudy",
     "streamStart",
-    "gdprErase",
     "swissFinish"
   ) {
     case lila.forum.actorApi.CreatePost(post)             => write.forumPost(post).unit
@@ -71,7 +73,6 @@ final class Env(
     case lila.hub.actorApi.team.CreateTeam(id, _, userId) => write.team(id, userId).unit
     case lila.hub.actorApi.team.JoinTeam(id, userId)      => write.team(id, userId).unit
     case lila.hub.actorApi.streamer.StreamStart(userId)   => write.streamStart(userId).unit
-    case lila.user.User.GDPRErase(user)                   => write.erase(user).unit
     case lila.swiss.SwissFinish(swissId, ranking)         => write.swiss(swissId, ranking).unit
   }
 }

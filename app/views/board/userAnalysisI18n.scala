@@ -42,6 +42,7 @@ object userAnalysisI18n {
     trans.playingRightNow,
     trans.whiteIsVictorious,
     trans.blackIsVictorious,
+    trans.cheatDetected,
     trans.kingInTheCenter,
     trans.threeChecks,
     trans.variantEnding,
@@ -53,9 +54,6 @@ object userAnalysisI18n {
     trans.computerAnalysis,
     trans.learnFromYourMistakes,
     trans.averageCentipawnLoss,
-    trans.inaccuracies,
-    trans.mistakes,
-    trans.blunders,
     trans.viewTheSolution,
     trans.spectators,
     // action menu
@@ -169,6 +167,9 @@ object userAnalysisI18n {
   ).map(_.key)
 
   private val advantageChartTranslations: Vector[MessageKey] = Vector(
+    trans.nbInaccuracies,
+    trans.nbMistakes,
+    trans.nbBlunders,
     trans.advantage,
     trans.opening,
     trans.middlegame,

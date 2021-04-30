@@ -281,16 +281,15 @@ object mon {
   }
   object email {
     object send {
-      private val c           = counter("email.send")
-      val resetPassword       = c.withTag("type", "resetPassword")
-      val magicLink           = c.withTag("type", "magicLink")
-      val reopen              = c.withTag("type", "reopen")
-      val fix                 = c.withTag("type", "fix")
-      val change              = c.withTag("type", "change")
-      val confirmation        = c.withTag("type", "confirmation")
-      val welcome             = c.withTag("type", "welcome")
-      val time                = timer("email.send.time").withoutTags()
-      def error(name: String) = counter("email.error").withTag("name", name)
+      private val c     = counter("email.send")
+      val resetPassword = c.withTag("type", "resetPassword")
+      val magicLink     = c.withTag("type", "magicLink")
+      val reopen        = c.withTag("type", "reopen")
+      val fix           = c.withTag("type", "fix")
+      val change        = c.withTag("type", "change")
+      val confirmation  = c.withTag("type", "confirmation")
+      val welcome       = c.withTag("type", "welcome")
+      val time          = timer("email.send.time").withoutTags()
     }
     val disposableDomain = gauge("email.disposableDomain").withoutTags()
   }
@@ -316,9 +315,9 @@ object mon {
     }
     def usersAlikeTime(field: String)  = timer("security.usersAlike.time").withTag("field", field)
     def usersAlikeFound(field: String) = histogram("security.usersAlike.found").withTag("field", field)
-    object recaptcha {
+    object hCaptcha {
       def hit(client: String, result: String) =
-        counter("recaptcha.hit").withTags(Map("client" -> client, "result" -> result))
+        counter("hcaptcha.hit").withTags(Map("client" -> client, "result" -> result))
     }
   }
   object tv {
@@ -410,6 +409,11 @@ object mon {
     val goal    = gauge("plan.goal").withoutTags()
     val current = gauge("plan.current").withoutTags()
     val percent = gauge("plan.percent").withoutTags()
+    object charge {
+      def first(service: String) = counter("plan.charge.first").withTag("service", service)
+      def countryCents(country: String, service: String) =
+        histogram("plan.charge.country.cents").withTags(Map("country" -> country, "service" -> service))
+    }
   }
   object forum {
     object post {
@@ -517,7 +521,17 @@ object mon {
         "auth" -> auth
       )
     )
-
+  }
+  object streak {
+    object selector {
+      val time                    = timer("streak.selector.time").withoutTags()
+      val count                   = histogram("streak.selector.count").withoutTags()
+      val rating                  = histogram("streak.selector.rating").withoutTags()
+      def ratingSlice(index: Int) = histogram("streak.selector.ratingSlice").withTag("index", index)
+    }
+    object run {
+      def score(auth: Boolean) = histogram("streak.run.score").withTag("auth", auth)
+    }
   }
   object game {
     def finish(variant: String, speed: String, source: String, mode: String, status: String) =
@@ -620,6 +634,7 @@ object mon {
     object http {
       def request(hit: Boolean) = counter("fishnet.http.acquire").withTag("hit", hit)
     }
+    def move(level: Int) = counter("fishnet.move.time").withTag("level", level)
   }
   object study {
     object tree {

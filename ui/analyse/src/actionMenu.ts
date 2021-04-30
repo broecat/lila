@@ -1,8 +1,6 @@
 import { isEmpty } from 'common';
 import modal from 'common/modal';
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import { Hooks } from 'snabbdom/hooks';
+import { h, VNode, Hooks } from 'snabbdom';
 import { MaybeVNodes } from './interfaces';
 import { AutoplayDelay } from './autoplay';
 import { boolSetting, BoolSetting } from './boolSetting';
@@ -37,7 +35,7 @@ const cplSpeed: AutoplaySpeed = {
   delay: 'cpl',
 };
 
-function deleteButton(ctrl: AnalyseCtrl, userId: string | null): VNode | undefined {
+function deleteButton(ctrl: AnalyseCtrl, userId?: string): VNode | undefined {
   const g = ctrl.data.game;
   if (g.source === 'import' && g.importedBy && g.importedBy === userId)
     return h(
@@ -154,9 +152,11 @@ function studyButton(ctrl: AnalyseCtrl) {
   );
 }
 
-export class Ctrl {
-  open: boolean = false;
-  toggle = () => (this.open = !this.open);
+export class ActionMenuCtrl {
+  open = false;
+  toggle = (): void => {
+    this.open = !this.open;
+  };
 }
 
 export function view(ctrl: AnalyseCtrl): VNode {

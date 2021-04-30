@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { Chessground } from 'chessground';
 import { Api as CgApi } from 'chessground/api';
 import { Config as CgConfig } from 'chessground/config';
@@ -51,7 +50,7 @@ export function makeConfig(ctrl: AnalyseCtrl): CgConfig {
     check: opts.check,
     lastMove: opts.lastMove,
     orientation: ctrl.bottomColor(),
-    coordinates: pref.coords !== 0 && !ctrl.embed,
+    coordinates: pref.coords !== Prefs.Coords.Hidden && !ctrl.embed,
     addPieceZIndex: pref.is3d,
     viewOnly: !!ctrl.embed,
     movable: {
@@ -65,8 +64,8 @@ export function makeConfig(ctrl: AnalyseCtrl): CgConfig {
       move: ctrl.userMove,
       dropNewPiece: ctrl.userNewPiece,
       insert(elements: cg.Elements) {
-        if (!ctrl.embed) resizeHandle(elements, 2, ctrl.node.ply);
-        if (!ctrl.embed && ctrl.data.pref.coords == 1) changeColorHandle();
+        if (!ctrl.embed) resizeHandle(elements, Prefs.ShowResizeHandle.Always, ctrl.node.ply);
+        if (!ctrl.embed && ctrl.data.pref.coords == Prefs.Coords.Inside) changeColorHandle();
       },
     },
     premovable: {

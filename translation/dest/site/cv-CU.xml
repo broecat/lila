@@ -55,11 +55,8 @@
   <string name="noGameFound">Пӗр вӑйӑ та тупӑнман</string>
   <string name="delete">Катерт</string>
   <string name="enable">Пултар</string>
-  <string name="blunders">Тӳрккес йӑнӑшсем</string>
   <string name="mistake">Йӑнӑш</string>
-  <string name="mistakes">Йӑнӑшсем</string>
   <string name="inaccuracy">Кӳрӗнмелле йӑнӑш</string>
-  <string name="inaccuracies">Кӳрӗнмелле йӑнӑшсем</string>
   <string name="moveTimes">Шутланӑ вӑхӑт хушшисем</string>
   <string name="flipBoard">Хӑмана валтӑрт</string>
   <string name="threefoldRepetition">Пӗр лартӑмах виҫ хут лекни</string>
@@ -176,7 +173,6 @@
   <plurals name="giveNbSeconds">
     <item quantity="other">%s ҫеккунт пар</item>
   </plurals>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Ҫак вӑйӑҫӑ хӑйӗн рейтингне йури ӳстерет / чакарать</string>
   <string name="takeback">Тавӑрасси</string>
   <string name="proposeATakeback">Тавӑрасси ыйт</string>
   <string name="takebackPropositionSent">Тавӑрасси ыйтнине йанӑ</string>

@@ -94,27 +94,30 @@ final class Swiss(
       }
     }
 
+  private def CheckTeamLeader(teamId: String)(f: => Fu[Result])(implicit ctx: Context): Fu[Result] =
+    ctx.userId ?? { env.team.cached.isLeader(teamId, _) } flatMap { _ ?? f }
+
   def form(teamId: String) =
-    Open { implicit ctx =>
-      Ok(html.swiss.form.create(env.swiss.forms.create, teamId)).fuccess
+    Auth { implicit ctx => _ =>
+      CheckTeamLeader(teamId) {
+        Ok(html.swiss.form.create(env.swiss.forms.create, teamId)).fuccess
+      }
     }
 
   def create(teamId: String) =
     AuthBody { implicit ctx => me =>
-      env.team.cached.isLeader(teamId, me.id) flatMap {
-        case false => notFound
-        case _ =>
-          env.swiss.forms.create
-            .bindFromRequest()(ctx.body, formBinding)
-            .fold(
-              err => BadRequest(html.swiss.form.create(err, teamId)).fuccess,
-              data =>
-                tourC.rateLimitCreation(me, isPrivate = true, ctx.req, Redirect(routes.Team.show(teamId))) {
-                  env.swiss.api.create(data, me, teamId) map { swiss =>
-                    Redirect(routes.Swiss.show(swiss.id.value))
-                  }
+      CheckTeamLeader(teamId) {
+        env.swiss.forms.create
+          .bindFromRequest()(ctx.body, formBinding)
+          .fold(
+            err => BadRequest(html.swiss.form.create(err, teamId)).fuccess,
+            data =>
+              tourC.rateLimitCreation(me, isPrivate = true, ctx.req, Redirect(routes.Team.show(teamId))) {
+                env.swiss.api.create(data, me, teamId) map { swiss =>
+                  Redirect(routes.Swiss.show(swiss.id.value))
                 }
-            )
+              }
+          )
       }
     }
 
@@ -137,6 +140,19 @@ final class Swiss(
                   }
               )
         }
+    }
+
+  def apiTerminate(id: String) =
+    ScopedBody(_.Tournament.Write) { implicit req => me =>
+      env.swiss.api byId lila.swiss.Swiss.Id(id) flatMap {
+        _ ?? {
+          case swiss if swiss.createdBy == me.id || isGranted(_.ManageTournament, me) =>
+            env.swiss.api
+              .kill(swiss)
+              .map(_ => jsonOkResult)
+          case _ => BadRequest(jsonError("Can't terminate that tournament: Permission denied")).fuccess
+        }
+      }
     }
 
   def join(id: String) =

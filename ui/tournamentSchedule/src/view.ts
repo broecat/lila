@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 const scale = 8;
 let now: number, startTime: number, stopTime: number;
@@ -80,7 +79,7 @@ function splitOverlaping(lanes) {
   let ret: any[] = [],
     i: number;
   lanes.forEach(lane => {
-    var newLanes: any[] = [[]];
+    const newLanes: any[] = [[]];
     lane.forEach(tour => {
       let collision = true;
       for (i = 0; i < newLanes.length; i++) {
@@ -259,7 +258,10 @@ export default function (ctrl) {
               mousedownAt = [e.clientX, e.clientY];
             });
             el.addEventListener('click', e => {
-              if (mousedownAt && Math.pow(e.clientX - mousedownAt[0], 2) + Math.pow(e.clientY - mousedownAt[1], 2)) {
+              const dist = mousedownAt
+                ? Math.abs(e.clientX - mousedownAt![0]) + Math.abs(e.clientY - mousedownAt![1])
+                : 0;
+              if (dist > 20) {
                 e.preventDefault();
                 return false;
               }

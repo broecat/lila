@@ -1,15 +1,13 @@
 package lila.game
 
-import lila.common.ThreadLocalRandom
-
 import chess.format.{ FEN, Forsyth }
 import chess.{ Color, Status }
 import org.joda.time.DateTime
 import reactivemongo.akkastream.{ cursorProducer, AkkaStreamCursor }
 import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.ReadPreference
-import reactivemongo.api.WriteConcern
+import reactivemongo.api.{ ReadPreference, WriteConcern }
 
+import lila.common.ThreadLocalRandom
 import lila.db.BSON.BSONJodaDateTimeHandler
 import lila.db.dsl._
 import lila.db.isDuplicateKey
@@ -92,12 +90,15 @@ final class GameRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     }
 
   def recentPovsByUserFromSecondary(user: User, nb: Int, select: Bdoc = $empty): Fu[List[Pov]] =
+    recentGamesByUserFromSecondaryCursor(user, select)
+      .list(nb)
+      .map { _.flatMap(Pov(_, user)) }
+
+  def recentGamesByUserFromSecondaryCursor(user: User, select: Bdoc = $empty) =
     coll
       .find(Query.user(user) ++ select)
       .sort(Query.sortCreated)
       .cursor[Game](ReadPreference.secondaryPreferred)
-      .list(nb)
-      .map { _.flatMap(Pov(_, user)) }
 
   def gamesForAssessment(userId: String, nb: Int): Fu[List[Game]] =
     coll
@@ -195,6 +196,22 @@ final class GameRepo(val coll: Coll)(implicit ec: scala.concurrent.ExecutionCont
     coll.list[Game](Query nowPlaying user.id, Game.maxPlayingRealtime) dmap {
       _ flatMap { Pov(_, user) }
     }
+
+  def countWhereUserTurn(userId: User.ID): Fu[Int] =
+    coll
+      .countSel(
+        // important, hits the index!
+        Query.nowPlaying(userId) ++ $doc(
+          "$or" ->
+            List(0, 1).map { rem =>
+              $doc(
+                s"${Game.BSONFields.playingUids}.$rem" -> userId,
+                Game.BSONFields.turns                  -> $doc("$mod" -> $arr(2, rem))
+              )
+            }
+        )
+      )
+      .dmap(_.toInt)
 
   def playingRealtimeNoAi(user: User): Fu[List[Game.ID]] =
     coll.distinctEasy[Game.ID, List](

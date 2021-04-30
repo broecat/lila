@@ -18,7 +18,7 @@ final class Signup(
     forms: SecurityForm,
     emailAddressValidator: EmailAddressValidator,
     emailConfirm: EmailConfirm,
-    recaptcha: Recaptcha,
+    hcaptcha: Hcaptcha,
     authenticator: lila.user.Authenticator,
     userRepo: lila.user.UserRepo,
     slack: lila.irc.SlackApi,
@@ -59,16 +59,16 @@ final class Signup(
   def website(
       blind: Boolean
   )(implicit req: Request[_], lang: Lang, formBinding: FormBinding): Fu[Signup.Result] =
-    recaptcha.verify().flatMap {
-      case Recaptcha.Result.Fail           => fuccess(Signup.MissingCaptcha)
-      case Recaptcha.Result.Pass if !blind => fuccess(Signup.MissingCaptcha)
-      case recaptchaResult =>
+    hcaptcha.verify().flatMap {
+      case Hcaptcha.Result.Fail           => fuccess(Signup.MissingCaptcha)
+      case Hcaptcha.Result.Pass if !blind => fuccess(Signup.MissingCaptcha)
+      case hcaptchaResult =>
         forms.signup.website.form
           .bindFromRequest()
           .fold[Fu[Signup.Result]](
             err => fuccess(Signup.Bad(err tap signupErrLog)),
             data =>
-              signupRateLimit(data.username, if (recaptchaResult == Recaptcha.Result.Valid) 1 else 3) {
+              signupRateLimit(data.username, if (hcaptchaResult == Hcaptcha.Result.Valid) 1 else 3) {
                 MustConfirmEmail(data.fingerPrint) flatMap { mustConfirm =>
                   lila.mon.user.register.count(none)
                   lila.mon.user.register.mustConfirmEmail(mustConfirm.toString).increment()
@@ -170,17 +170,13 @@ final class Signup(
       fingerPrint: Option[FingerPrint],
       apiVersion: Option[ApiVersion],
       mustConfirm: MustConfirmEmail
-  ) = {
+  ) =
     authLog(
       user.username,
       email.value,
-      s"fp: $fingerPrint mustConfirm: $mustConfirm fp: ${fingerPrint.??(_.value)} api: ${apiVersion.??(_.value)}"
+      s"fp: $fingerPrint mustConfirm: $mustConfirm fp: ${fingerPrint
+        .??(_.value)} ip: ${HTTPRequest ipAddress req} api: ${apiVersion.??(_.value)}"
     )
-    val ip = HTTPRequest ipAddress req
-    ipTrust.isSuspicious(ip) foreach { susp =>
-      slack.signup(user, email, ip, fingerPrint.flatMap(_.hash).map(_.value), apiVersion, susp)
-    }
-  }
 
   private def signupErrLog(err: Form[_]) =
     for {

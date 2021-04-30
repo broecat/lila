@@ -8,40 +8,45 @@
   <string name="newWeeklyHighscore">Új heti rekord!</string>
   <string name="newMonthlyHighscore">Új havi rekord!</string>
   <string name="newAllTimeHighscore">Új abszolút rekord!</string>
-  <string name="previousHighscoreWasX">Az előző rekord %s volt</string>
-  <string name="playAgain">Újrajátszás</string>
+  <string name="previousHighscoreWasX">Az előző rekordod %s volt</string>
+  <string name="playAgain">Játssz újra</string>
   <plurals name="xRuns">
     <item quantity="one">1 futam</item>
     <item quantity="other">%s futam</item>
   </plurals>
   <plurals name="playedNbRunsOfPuzzleStorm">
-    <item quantity="one">%2$s futamból egy lejátszva</item>
-    <item quantity="other">%2$s futamból %1$s lejátszva</item>
+    <item quantity="one">Egy %2$s futamot játszott</item>
+    <item quantity="other">%1$s %2$s futamot játszott</item>
   </plurals>
   <string name="highscoreX">Rekord: %s</string>
   <string name="score">Pontszám</string>
   <string name="moves">Lépések</string>
   <string name="accuracy">Pontosság</string>
-  <string name="combo">Kombó</string>
-  <string name="time">Eltelt idő</string>
+  <string name="combo">Széria</string>
+  <string name="time">Idő</string>
   <string name="timePerMove">Idő lépésenként</string>
   <string name="highestSolved">Legnehezebb megoldott</string>
   <string name="puzzlesPlayed">Játszott feladványok</string>
   <string name="newRun">Új futam (gyorsbill.: Szóköz)</string>
-  <string name="endRun">Futam vége (gyorsbill.: Enter)</string>
-  <string name="highscores">Toplista</string>
-  <string name="viewBestRuns">Legjobb futamok</string>
+  <string name="endRun">Futam vége (gyorsbillentyű: Enter)</string>
+  <string name="highscores">Legjobb pontszámaid</string>
+  <string name="viewBestRuns">Napi legjobb futamjaid</string>
   <string name="bestRunOfDay">Napi legjobb futam</string>
   <string name="runs">Futamok</string>
   <string name="getReady">Felkészülni!</string>
-  <string name="waitingForMorePlayers">Várakozás játékosok csatlakozására...</string>
+  <string name="waitingForMorePlayers">További játékosok csatlakozására várunk...</string>
   <string name="raceComplete">Vége a versenynek!</string>
   <string name="spectating">Megfigyelés</string>
   <string name="joinTheRace">Csatlakozz a versenyhez!</string>
   <string name="yourRankX">Helyezésed: %s</string>
-  <string name="waitForRematch" comment="waitForRematch&#10;&#10;When a user is spectating a puzzle race, they are not able to join it. This is the title of a disabled button instructing the user to wait for a rematch before joining the game.">Várj az újrajátszásig</string>
-  <string name="nextRace">Következő</string>
+  <string name="waitForRematch">Várj az újrajátszásig</string>
+  <string name="nextRace">Következő futam</string>
   <string name="joinRematch">Csatlakozás</string>
   <string name="waitingToStart">Várakozás a kezdésig</string>
-  <string name="createNewGame" comment="createNewGame&#10;&#10;When a puzzle race (https://lichess.org/racer) is completed, this is the title of a button for creating a new racing game.">Új játék létrehozása</string>
+  <string name="createNewGame">Új játék létrehozása</string>
+  <string name="joinPublicRace">Csatlakozás egy nyilvános versenyhez</string>
+  <string name="raceYourFriends">Versenyezz a barátaiddal</string>
+  <string name="skip">kihagy</string>
+  <string name="skipHelp">Kihagyhatsz egy lépést versenyenként:</string>
+  <string name="skipExplanation">Ugord át ezt a lépést a szériád megőrzéséhez! Egy menetben csak egyszer működik.</string>
 </resources>

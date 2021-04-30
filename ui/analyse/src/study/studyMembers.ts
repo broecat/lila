@@ -1,16 +1,38 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { titleNameToId, bind, dataIcon, iconTag, onInsert, scrollTo } from '../util';
 import { prop, Prop } from 'common';
-import { makeCtrl as inviteFormCtrl } from './inviteForm';
+import { makeCtrl as inviteFormCtrl, StudyInviteFormCtrl } from './inviteForm';
 import { StudyCtrl, StudyMember, StudyMemberMap, Tab } from './interfaces';
 import { NotifCtrl } from './notif';
+import { AnalyseSocketSend } from '../socket';
+
+export interface StudyMemberCtrl {
+  dict: Prop<StudyMemberMap>;
+  confing: Prop<string | null>;
+  myId?: string;
+  inviteForm: StudyInviteFormCtrl;
+  update(members: StudyMemberMap): void;
+  setActive(id: string): void;
+  isActive(id: string): boolean;
+  owner(): StudyMember;
+  myMember(): StudyMember | undefined;
+  isOwner(): boolean;
+  canContribute(): boolean;
+  max: number;
+  setRole(id: string, role: string): void;
+  kick(id: string): void;
+  leave(): void;
+  ordered(): StudyMember[];
+  size(): number;
+  isOnline(userId: string): boolean;
+  hasOnlineContributor(): boolean;
+}
 
 interface Opts {
   initDict: StudyMemberMap;
-  myId: string | null;
+  myId: string | undefined;
   ownerId: string;
-  send: SocketSend;
+  send: AnalyseSocketSend;
   tab: Prop<Tab>;
   startTour(): void;
   notif: NotifCtrl;
@@ -22,7 +44,7 @@ interface Opts {
 
 function memberActivity(onIdle: () => void) {
   let timeout: Timeout;
-  let schedule = () => {
+  const schedule = () => {
     if (timeout) clearTimeout(timeout);
     timeout = setTimeout(onIdle, 100);
   };
@@ -30,10 +52,10 @@ function memberActivity(onIdle: () => void) {
   return schedule;
 }
 
-export function ctrl(opts: Opts) {
+export function ctrl(opts: Opts): StudyMemberCtrl {
   const dict = prop<StudyMemberMap>(opts.initDict);
-  const confing = prop<string | undefined>(undefined);
-  let active: { [id: string]: () => void } = {};
+  const confing = prop<string | null>(null);
+  const active: { [id: string]: () => void } = {};
   let online: { [id: string]: boolean } = {};
   let spectatorIds: string[] = [];
   const max = 30;
@@ -47,7 +69,7 @@ export function ctrl(opts: Opts) {
   }
 
   function myMember() {
-    return opts.myId ? dict()[opts.myId] : null;
+    return opts.myId ? dict()[opts.myId] : undefined;
   }
 
   function canContribute(): boolean {
@@ -90,12 +112,7 @@ export function ctrl(opts: Opts) {
     myId: opts.myId,
     inviteForm,
     update(members: StudyMemberMap) {
-      if (isOwner())
-        confing(
-          Object.keys(members).find(function (sri) {
-            return !dict()[sri];
-          })
-        );
+      if (isOwner()) confing(Object.keys(members).find(sri => !dict()[sri]) || null);
       const wasViewer = myMember() && !canContribute();
       const wasContrib = myMember() && canContribute();
       dict(members);
@@ -128,11 +145,11 @@ export function ctrl(opts: Opts) {
         userId: id,
         role,
       });
-      confing(undefined);
+      confing(null);
     },
     kick(id: string) {
       opts.send('kick', id);
-      confing(undefined);
+      confing(null);
     },
     leave() {
       opts.send('leave');
@@ -151,7 +168,7 @@ export function ctrl(opts: Opts) {
     },
     hasOnlineContributor() {
       const members = dict();
-      for (let i in members) if (online[i] && members[i].role === 'w') return true;
+      for (const i in members) if (online[i] && members[i].role === 'w') return true;
       return false;
     },
   };
@@ -162,7 +179,7 @@ export function view(ctrl: StudyCtrl): VNode {
     isOwner = members.isOwner();
 
   function username(member: StudyMember) {
-    var u = member.user;
+    const u = member.user;
     return h(
       'span.user-link.ulpt',
       {
@@ -190,18 +207,19 @@ export function view(ctrl: StudyCtrl): VNode {
 
   function configButton(ctrl: StudyCtrl, member: StudyMember) {
     if (isOwner && (member.user.id !== members.myId || ctrl.data.admin))
-      return h('act', {
+      return h('i.act', {
         attrs: dataIcon('%'),
         hook: bind(
           'click',
           _ => {
-            members.confing(members.confing() === member.user.id ? null : member.user.id);
+            members.confing(members.confing() == member.user.id ? null : member.user.id);
+            console.log(members.confing(), member.user.id);
           },
           ctrl.redraw
         ),
       });
     if (!isOwner && member.user.id === members.myId)
-      return h('act.leave', {
+      return h('i.act.leave', {
         attrs: {
           'data-icon': 'F',
           title: ctrl.trans.noarg('leaveTheStudy'),

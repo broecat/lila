@@ -1,7 +1,6 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { prop } from 'common';
-import { storedProp, storedJsonProp } from 'common/storage';
+import { storedProp, storedJsonProp, StoredJsonProp } from 'common/storage';
 import { bind, dataIcon } from '../util';
 import { Game } from '../interfaces';
 import { ExplorerDb, ExplorerSpeed, ExplorerConfigData, ExplorerConfigCtrl } from './interfaces';
@@ -21,9 +20,9 @@ export function controller(game: Game, onClose: () => void, trans: Trans, redraw
       available,
       selected:
         available.length > 1
-          ? storedProp('explorer.burned-db.' + variant, available[available.length - 1])
+          ? storedProp('explorer.db.' + variant, available[0])
           : function () {
-              return available[available.length - 1]; // revert to 0
+              return available[0];
             },
     },
     rating: {
@@ -36,7 +35,7 @@ export function controller(game: Game, onClose: () => void, trans: Trans, redraw
     },
   };
 
-  const toggleMany = function (c, value) {
+  const toggleMany = function <T>(c: StoredJsonProp<T[]>, value: T) {
     if (!c().includes(value)) c(c().concat([value]));
     else if (c().length > 1) c(c().filter(v => v !== value));
   };

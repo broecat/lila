@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { tds, bind } from './util';
 import LobbyController from '../ctrl';
 import { Seek, MaybeVNodes } from '../interfaces';
@@ -45,7 +44,14 @@ function createSeek(ctrl: LobbyController): VNode | undefined {
       h(
         'a.button',
         {
-          attrs: { href: '/?time=correspondence#hook' },
+          hook: bind('click', () => {
+            $('.lobby__start .config_hook')
+              .each(function (this: HTMLElement) {
+                this.dataset.hrefAddon = '?time=correspondence';
+              })
+              .trigger('mousedown')
+              .trigger('click');
+          }),
         },
         ctrl.trans('createAGame')
       ),

@@ -1,9 +1,7 @@
 import * as cg from 'chessground/types';
-import { h } from 'snabbdom';
-import { Hooks } from 'snabbdom/hooks';
+import { h, Hooks, VNodeData } from 'snabbdom';
 import { opposite } from 'chessground/util';
 import { Redraw, EncodedDests, Dests, MaterialDiff, Step, CheckCount } from './interfaces';
-import { VNodeData } from 'snabbdom/vnode';
 
 const pieceScores = {
   pawn: 1,
@@ -30,7 +28,7 @@ export const onInsert = (f: (el: HTMLElement) => void): Hooks => ({
   },
 });
 
-export const bind = (eventName: string, f: (e: Event) => void, redraw?: Redraw, passive: boolean = true): Hooks =>
+export const bind = (eventName: string, f: (e: Event) => void, redraw?: Redraw, passive = true): Hooks =>
   onInsert(el => {
     el.addEventListener(
       eventName,
@@ -82,7 +80,7 @@ export const noChecks: CheckCount = {
 
 export function countChecks(steps: Step[], ply: Ply): CheckCount {
   const checks: CheckCount = { ...noChecks };
-  for (let step of steps) {
+  for (const step of steps) {
     if (ply < step.ply) break;
     if (step.check) {
       if (step.ply % 2 === 1) checks.white++;

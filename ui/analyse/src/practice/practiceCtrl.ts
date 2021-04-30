@@ -1,5 +1,4 @@
-import { winningChances } from 'ceval';
-import { Eval } from 'ceval';
+import { winningChances, Eval } from 'ceval';
 import { path as treePath } from 'tree';
 import { detectThreefold } from '../nodeFinder';
 import { tablebaseGuaranteed } from '../explorer/explorerCtrl';
@@ -33,11 +32,11 @@ export interface PracticeCtrl {
   onJump(): void;
   isMyTurn(): boolean;
   comment: Prop<Comment | null>;
-  running;
-  hovering;
-  hinting;
-  resume;
-  playableDepth;
+  running: Prop<boolean>;
+  hovering: Prop<{ uci: string } | null>;
+  hinting: Prop<Hinting | null>;
+  resume(): void;
+  playableDepth(): number;
   reset(): void;
   preUserJump(from: Tree.Path, to: Tree.Path): void;
   postUserJump(from: Tree.Path, to: Tree.Path): void;
@@ -54,7 +53,7 @@ export function make(root: AnalyseCtrl, playableDepth: () => number): PracticeCt
   const variant = root.data.game.variant.key,
     running = prop(true),
     comment = prop<Comment | null>(null),
-    hovering = prop<any>(null),
+    hovering = prop<{ uci: string } | null>(null),
     hinting = prop<Hinting | null>(null),
     played = prop(false);
 
@@ -64,7 +63,7 @@ export function make(root: AnalyseCtrl, playableDepth: () => number): PracticeCt
     if (root.threatMode()) root.toggleThreatMode();
   }
 
-  function commentable(node: Tree.Node, bonus: number = 0): boolean {
+  function commentable(node: Tree.Node, bonus = 0): boolean {
     if (node.tbhit || root.outcome(node)) return true;
     const ceval = node.ceval;
     return ceval ? ceval.depth + bonus >= 15 || (ceval.depth >= 13 && ceval.millis > 3000) : false;
@@ -93,7 +92,7 @@ export function make(root: AnalyseCtrl, playableDepth: () => number): PracticeCt
   }
 
   function makeComment(prev: Tree.Node, node: Tree.Node, path: Tree.Path): Comment {
-    let verdict: Verdict, best;
+    let verdict: Verdict, best: Uci | undefined;
     const outcome = root.outcome(node);
 
     if (outcome && outcome.winner) verdict = 'goodMove';
@@ -103,8 +102,9 @@ export function make(root: AnalyseCtrl, playableDepth: () => number): PracticeCt
       const prevEval: Eval = tbhitToEval(prev.tbhit) || prev.ceval!;
       const shift = -winningChances.povDiff(root.bottomColor(), nodeEval, prevEval);
 
-      best = nodeBestUci(prev)!;
-      if (best === node.uci || (node.san!.startsWith('O-O') && best === altCastles[node.uci!])) best = null;
+      best = nodeBestUci(prev);
+      if (best === node.uci || (node.san!.startsWith('O-O') && best === (altCastles as Dictionary<Uci>)[node.uci!]))
+        best = undefined;
 
       if (!best) verdict = 'goodMove';
       else if (shift < 0.025) verdict = 'goodMove';
@@ -122,7 +122,7 @@ export function make(root: AnalyseCtrl, playableDepth: () => number): PracticeCt
         ? {
             uci: best,
             san: root.position(prev).unwrap(
-              pos => makeSan(pos, parseUci(best)!),
+              pos => makeSan(pos, parseUci(best!)!),
               _ => '--'
             ),
           }

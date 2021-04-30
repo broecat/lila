@@ -83,7 +83,13 @@ object layout {
     )
       "Disable"
     else "Enable"} blind mode</button></form>""")
-  private val zenToggle = raw("""<a data-icon="E" id="zentog" class="text fbt active">ZEN MODE</a>""")
+
+  private def zenToggle(implicit ctx: Context) =
+    spaceless(s"""
+  <a data-icon="E" id="zentog" class="text fbt active">
+    ${trans.preferences.zenMode.txt()}
+  </a>""")
+
   private def dasher(me: lila.user.User) =
     div(cls := "dasher")(
       a(id := "user_tag", cls := "toggle link", href := routes.Auth.logoutGet)(me.username),
@@ -279,7 +285,7 @@ object layout {
               "is3d"    -> ctx.pref.is3d
             )
           )(body),
-          ctx.isAuth option div(
+          ctx.me.exists(_.enabled) option div(
             id := "friend_box",
             dataI18n := safeJsonValue(i18nJsObject(i18nKeys))
           )(
@@ -334,7 +340,7 @@ object layout {
     def apply(playing: Boolean)(implicit ctx: Context) =
       header(id := "top")(
         div(cls := "site-title-nav")(
-          topnavToggle,
+          !ctx.isAppealUser option topnavToggle,
           h1(cls := "site-title")(
             if (ctx.kid) span(title := trans.kidMode.txt(), cls := "kiddo")(":)")
             else ctx.isBot option botImage,
@@ -344,15 +350,20 @@ object layout {
             )
           ),
           ctx.blind option h2("Navigation"),
-          topnav()
+          !ctx.isAppealUser option topnav()
         ),
         div(cls := "site-buttons")(
-          clinput,
+          !ctx.isAppealUser option clinput,
           reports,
           teamRequests,
-          ctx.me map { me =>
-            frag(allNotifications, dasher(me))
-          } getOrElse { !ctx.pageData.error option anonDasher(playing) }
+          if (ctx.isAppealUser)
+            postForm(action := routes.Auth.logout)(
+              submitButton(cls := "button button-red link")(trans.logOut())
+            )
+          else
+            ctx.me map { me =>
+              frag(allNotifications, dasher(me))
+            } getOrElse { !ctx.pageData.error option anonDasher(playing) }
         )
       )
   }

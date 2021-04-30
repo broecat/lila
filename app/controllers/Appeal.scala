@@ -8,13 +8,25 @@ import lila.app._
 import lila.report.Suspect
 import play.api.data.Form
 
-final class Appeal(env: Env, reportC: => Report) extends LilaController(env) {
+final class Appeal(env: Env, reportC: => Report, prismicC: => Prismic) extends LilaController(env) {
 
-  import lila.appeal.Appeal.form
+  private def form(implicit ctx: Context) =
+    if (isGranted(_.Appeals)) lila.appeal.Appeal.modForm
+    else lila.appeal.Appeal.form
 
   def home =
     Auth { implicit ctx => me =>
       renderAppealOrTree(me) map { Ok(_) }
+    }
+
+  def landing =
+    Auth { implicit ctx => me =>
+      if (ctx.isAppealUser || isGranted(_.Appeals)) {
+        pageHit
+        OptionOk(prismicC getBookmark "appeal-landing") { case (doc, resolver) =>
+          views.html.site.page.lone(doc, resolver)
+        }
+      } else notFound
     }
 
   private def renderAppealOrTree(
@@ -41,8 +53,10 @@ final class Appeal(env: Env, reportC: => Report) extends LilaController(env) {
 
   def queue =
     Secure(_.Appeals) { implicit ctx => me =>
-      env.appeal.api.queue zip env.report.api.inquiries.allBySuspect zip reportC.getScores flatMap {
-        case ((appeals, inquiries), scores ~ streamers ~ nbAppeals) =>
+      env.appeal.api.queueOf(
+        me.user
+      ) zip env.report.api.inquiries.allBySuspect zip reportC.getScores flatMap {
+        case ((appeals, inquiries), ((scores, streamers), nbAppeals)) =>
           (env.user.lightUserApi preloadMany appeals.map(_.id)) inject
             Ok(html.appeal.queue(appeals, inquiries, scores, streamers, nbAppeals))
       }
@@ -70,10 +84,11 @@ final class Appeal(env: Env, reportC: => Report) extends LilaController(env) {
               },
             text =>
               for {
-                _ <- env.appeal.api.reply(text, appeal, me)
                 _ <- env.security.automaticEmail.onAppealReply(suspect.user)
+                preset = getPresets.findLike(text)
+                _ <- env.appeal.api.reply(text, appeal, me, preset.map(_.name))
                 _ <- env.mod.logApi.appealPost(me.id, suspect.user.id)
-              } yield Redirect(routes.Appeal.show(username)).flashSuccess
+              } yield Redirect(s"${routes.Appeal.show(username)}#appeal-actions")
           )
       }
     }
@@ -91,6 +106,15 @@ final class Appeal(env: Env, reportC: => Report) extends LilaController(env) {
     Secure(_.NotifySlack) { implicit ctx => me =>
       asMod(username) { (appeal, suspect) =>
         env.irc.slack.userAppeal(user = suspect.user, mod = me) inject NoContent
+      }
+    }
+
+  def snooze(username: String, dur: String) =
+    Secure(_.Appeals) { implicit ctx => me =>
+      asMod(username) { (appeal, suspect) =>
+        env.appeal.api.snooze(me.user, appeal.id, dur)
+        env.report.api.inquiries.toggle(lila.report.Mod(me.user), appeal.id) inject
+          Redirect(routes.Appeal.queue)
       }
     }
 

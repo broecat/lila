@@ -136,20 +136,25 @@ final class User(
     }
 
   private def EnabledUser(username: String)(f: UserModel => Fu[Result])(implicit ctx: Context): Fu[Result] =
-    env.user.repo named username flatMap {
-      case None if isGranted(_.UserModView)                 => modC.searchTerm(username.trim)
-      case None                                             => notFound
-      case Some(u) if u.enabled || isGranted(_.UserModView) => f(u)
-      case Some(u) =>
-        negotiate(
-          html = env.user.repo isErased u flatMap { erased =>
-            if (erased.value) notFound
-            else NotFound(html.user.show.page.disabled(u)).fuccess
-          },
-          api = _ => fuccess(NotFound(jsonError("No such user, or account closed")))
-        )
-    }
-
+    if (UserModel.isGhost(username))
+      negotiate(
+        html = Ok(html.site.bits.ghost).fuccess,
+        api = _ => notFoundJson("Deleted user")
+      )
+    else
+      env.user.repo named username flatMap {
+        case None if isGranted(_.UserModView)                 => ctx.me.map(Holder) ?? { modC.searchTerm(_, username.trim) }
+        case None                                             => notFound
+        case Some(u) if u.enabled || isGranted(_.UserModView) => f(u)
+        case Some(u) =>
+          negotiate(
+            html = env.user.repo isErased u flatMap { erased =>
+              if (erased.value) notFound
+              else NotFound(html.user.show.page.disabled(u)).fuccess
+            },
+            api = _ => fuccess(NotFound(jsonError("No such user, or account closed")))
+          )
+      }
   def showMini(username: String) =
     Open { implicit ctx =>
       OptionFuResult(env.user.repo named username) { user =>
@@ -158,7 +163,7 @@ final class User(
             ctx.userId.?? { env.game.crosstableApi.fetchOrEmpty(user.id, _) dmap some } zip
             ctx.isAuth.?? { env.pref.api.followable(user.id) } zip
             ctx.userId.?? { relationApi.fetchRelation(_, user.id) } flatMap {
-              case blocked ~ crosstable ~ followable ~ relation =>
+              case (((blocked, crosstable), followable), relation) =>
                 val ping = env.socket.isOnline(user.id) ?? UserLagCache.getLagRating(user.id)
                 negotiate(
                   html = !ctx.is(user) ?? currentlyPlaying(user) map { pov =>
@@ -350,7 +355,7 @@ final class User(
       .logTimeIfGt(s"${user.username} noteApi.forMod", 2 seconds)) zip
       env.playban.api.bans(familyUserIds).logTimeIfGt(s"${user.username} playban.bans", 2 seconds) zip
       lila.security.UserLogins.withMeSortedWithEmails(env.user.repo, user, userLogins) map {
-        case notes ~ bans ~ othersWithEmail =>
+        case ((notes, bans), othersWithEmail) =>
           UserLogins.TableData(userLogins, othersWithEmail, notes, bans, max)
       }
   }
@@ -390,14 +395,15 @@ final class User(
           html.user.mod.actions(user, emails, erased, env.mod.presets.pmPresets.get())
         }
         val userLoginsFu = env.security.userLogins(user, nbOthers)
-        val others = userLoginsFu flatMap { userLogins =>
-          loginsTableData(user, userLogins, nbOthers) map {
-            html.user.mod.otherUsers(holder, user, _)
-          }
-        }
+        val others = for {
+          userLogins <- userLoginsFu
+          appeals    <- env.appeal.api.byUserIds(user.id :: userLogins.otherUserIds)
+          data       <- loginsTableData(user, userLogins, nbOthers)
+        } yield html.user.mod.otherUsers(holder, user, data, appeals)
+
         val identification = userLoginsFu map { logins =>
           Granter.is(_.ViewPrintNoIP)(holder) ??
-            html.user.mod.identification(holder, logins)
+            html.user.mod.identification(holder, user, logins)
         }
         val irwin = isGranted(_.MarkEngine) ?? env.irwin.api.reports.withPovs(user).map {
           _ ?? { reps =>
@@ -442,8 +448,8 @@ final class User(
   def writeNote(username: String) =
     AuthBody { implicit ctx => me =>
       doWriteNote(username, me)(
-        err = _ => user => renderShow(user, Results.BadRequest),
-        suc = Redirect(routes.User.show(username).url + "?note").flashSuccess
+        _ => user => renderShow(user, Results.BadRequest),
+        Redirect(routes.User.show(username)).flashSuccess
       )(ctx.body)
     }
 

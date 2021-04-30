@@ -17,7 +17,7 @@ import { Autoplay, AutoplayDelay } from './autoplay';
 import { build as makeTree, path as treePath, ops as treeOps, TreeWrapper } from 'tree';
 import { compute as computeAutoShapes } from './autoShape';
 import { Config as ChessgroundConfig } from 'chessground/config';
-import { Ctrl as ActionMenuCtrl } from './actionMenu';
+import { ActionMenuCtrl } from './actionMenu';
 import { ctrl as cevalCtrl, isEvalBetter, sanIrreversible, CevalCtrl, Work as CevalWork, CevalOpts } from 'ceval';
 import { ctrl as treeViewCtrl, TreeView } from './treeView/treeView';
 import { defined, prop, Prop } from 'common';
@@ -40,10 +40,9 @@ import { Position, PositionError } from 'chessops/chess';
 import { Result } from '@badrap/result';
 import { setupPosition } from 'chessops/variant';
 import { storedProp, StoredBooleanProp } from 'common/storage';
-import { StudyCtrl } from './study/interfaces';
+import { AnaMove, StudyCtrl } from './study/interfaces';
 import { StudyPracticeCtrl } from './study/practice/interfaces';
 import { valid as crazyValid } from './crazy/crazyCtrl';
-import { treeReconstruct } from './util';
 
 export default class AnalyseCtrl {
   data: AnalyseData;
@@ -77,16 +76,16 @@ export default class AnalyseCtrl {
   justPlayed?: string; // pos
   justDropped?: string; // role
   justCaptured?: JustCaptured;
-  autoScrollRequested: boolean = false;
-  redirecting: boolean = false;
-  onMainline: boolean = true;
+  autoScrollRequested = false;
+  redirecting = false;
+  onMainline = true;
   synthetic: boolean; // false if coming from a real game
   ongoing: boolean; // true if real game is ongoing
 
   // display flags
-  flipped: boolean = false;
+  flipped = false;
   embed: boolean;
-  showComments: boolean = true; // whether to display comments in the move tree
+  showComments = true; // whether to display comments in the move tree
   showAutoShapes: StoredBooleanProp = storedProp('show-auto-shapes', true);
   showGauge: StoredBooleanProp = storedProp('show-gauge', true);
   showComputer: StoredBooleanProp = storedProp('show-computer', true);
@@ -159,7 +158,7 @@ export default class AnalyseCtrl {
 
     keyboard.bind(this);
 
-    lichess.pubsub.on('jump', (ply: any) => {
+    lichess.pubsub.on('jump', (ply: string) => {
       this.jumpToMain(parseInt(ply));
       this.redraw();
     });
@@ -187,7 +186,7 @@ export default class AnalyseCtrl {
     this.ongoing = !this.synthetic && game.playable(data);
 
     const prevTree = merge && this.tree.root;
-    this.tree = makeTree(treeReconstruct(this.data.treeParts));
+    this.tree = makeTree(util.treeReconstruct(this.data.treeParts));
     if (prevTree) this.tree.merge(prevTree);
 
     this.actionMenu = new ActionMenuCtrl();
@@ -352,7 +351,7 @@ export default class AnalyseCtrl {
           if (this.node.san!.includes('x')) this.sound.capture();
           else this.sound.move();
         }
-        if (/\+|\#/.test(this.node.san!)) this.sound.check();
+        if (/\+|#/.test(this.node.san!)) this.sound.check();
       }
       this.threatMode(false);
       this.ceval.stop();
@@ -478,7 +477,7 @@ export default class AnalyseCtrl {
   };
 
   sendMove = (orig: Key, dest: Key, capture?: JustCaptured, prom?: cg.Role): void => {
-    const move: any = {
+    const move: AnaMove = {
       orig,
       dest,
       variant: this.data.game.variant.key,
@@ -845,10 +844,12 @@ export default class AnalyseCtrl {
       variant: this.data.game.variant.key,
       canGet: () => this.canEvalGet(),
       canPut: () =>
-        this.data.evalPut &&
-        this.canEvalGet() &&
-        // if not in study, only put decent opening moves
-        (this.opts.study || (!this.node.ceval!.mate && Math.abs(this.node.ceval!.cp!) < 99)),
+        !!(
+          this.data.evalPut &&
+          this.canEvalGet() &&
+          // if not in study, only put decent opening moves
+          (this.opts.study || (!this.node.ceval!.mate && Math.abs(this.node.ceval!.cp!) < 99))
+        ),
       getNode: () => this.node,
       send: this.opts.socketSend,
       receive: this.onNewCeval,

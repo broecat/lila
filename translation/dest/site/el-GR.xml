@@ -115,11 +115,20 @@
   <string name="infiniteAnalysis">Άπειρη ανάλυση</string>
   <string name="removesTheDepthLimit">Καταργεί το όριο βάθους και κρατά τον υπολογιστή σας ζεστό</string>
   <string name="blunder">Σοβαρό σφάλμα</string>
-  <string name="blunders">Σοβαρά λάθη</string>
   <string name="mistake">Λάθος</string>
-  <string name="mistakes">Λάθη</string>
   <string name="inaccuracy">Ανακρίβεια</string>
-  <string name="inaccuracies">Ανακρίβειες</string>
+  <plurals name="nbBlunders">
+    <item quantity="one">%s σοβαρό σφάλμα</item>
+    <item quantity="other">%s σοβαρά σφάλματα</item>
+  </plurals>
+  <plurals name="nbMistakes">
+    <item quantity="one">%s λάθος</item>
+    <item quantity="other">%s λάθη</item>
+  </plurals>
+  <plurals name="nbInaccuracies">
+    <item quantity="one">%s ανακρίβεια</item>
+    <item quantity="other">%s ανακρίβειες</item>
+  </plurals>
   <string name="moveTimes">Χρόνοι κινήσεων</string>
   <string name="flipBoard">Περιστροφή σκακιέρας</string>
   <string name="threefoldRepetition">Τριπλή επανάληψη</string>
@@ -277,8 +286,7 @@
     <item quantity="one">Προσθέστε %s δευτερόλεπτα</item>
     <item quantity="other">Προσθέστε %s δευτερόλεπτα</item>
   </plurals>
-  <string name="thisAccountViolatedTos">Αυτός ο λογαριασμός παραβαίνει τους Όρους Χρήσης του Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Ο παίκτης αυξάνει/μειώνει τεχνητά την βαθμολογία</string>
+  <string name="thisAccountViolatedTos">Αυτός ο λογαριασμός παραβαίνει τους όρους χρήσης του Lichess</string>
   <string name="openingExplorerAndTablebase">Εξερευνητής ανοιγμάτων &amp; τελειωμάτων</string>
   <string name="takeback">Ανάκληση κίνησης</string>
   <string name="proposeATakeback">Προσφέρετε ανάκληση της προηγούμενης κίνησης</string>
@@ -839,4 +847,22 @@
   <string name="youCannotPostYetPlaySomeGames">Δεν μπορείτε να δημοσιεύσετε σε αυτό το φόρουμ ακόμα. Παίξτε μερικά παιχνίδια!</string>
   <string name="subscribe">Εγγραφείτε</string>
   <string name="unsubscribe">Απεγγραφείτε</string>
+  <string name="mentionedYouInX"> σας ανέφερε στο \"%1$s\".</string>
+  <string name="xMentionedYouInY"> Ο χρήστης %1$s σας ανέφερε στο «%2$s».</string>
+  <string name="invitedYouToX"> σας προσκάλεσε στο «%1$s».</string>
+  <string name="xInvitedYouToY">Ο χρήστης %1$s σας προσκάλεσε στο «%2$s».</string>
+  <string name="youAreNowPartOfTeam">Είστε πλέον μέλος της ομάδας.</string>
+  <string name="youHaveJoinedTeamX">Είστε πλέον μέλος της ομάδας «%1$s».</string>
+  <string name="someoneYouReportedWasBanned">Κάποιος που αναφέρατε έχει αποκλειστεί</string>
+  <string name="congratsYouWon">Συγχαρητήρια, κερδίσατε!</string>
+  <string name="gameVsX">Παιχνίδι εναντίον %1$s</string>
+  <string name="resVsX">%1$s εναντίον %2$s</string>
+  <string name="youJustBecamePatron">Μόλις γίνατε ένας Υποστηρικτής του Lichess.</string>
+  <string name="patronAccountExpired">Η συνδρομή Υποστηρικτή έχει λήξει</string>
+  <string name="pleaseReconsiderRenewIt">Σκεφτείτε να την ανανεώσετε!</string>
+  <string name="someoneReviewedYourCoachProfile">Κάποιος άφησε μια κριτική για το προφίλ προπονητή σας.</string>
+  <string name="newPendingReview">Νέα κριτική σε αναμονή</string>
+  <string name="lostAgainstTOSViolator">Χάσατε από κάποιον που παραβίασε τους όρους χρήσης του Lichess</string>
+  <string name="refundXpointsTimeControlY">Επιστροφή πόντων: %1$s %2$s πόντοι βαθμολογίας.</string>
+  <string name="timeAlmostUp">Ο χρόνος σας έχει σχεδόν τελειώσει!</string>
 </resources>

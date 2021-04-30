@@ -9,7 +9,7 @@
   <string name="lengths">Comprimentos</string>
   <string name="mates">Xeque-mates</string>
   <string name="goals">Objetivos</string>
-  <string name="origin" comment="origin&#10;&#10;In this case origin stands for the game the puzzle was found in.">Origem</string>
+  <string name="origin">Origem</string>
   <string name="specialMoves">Movimentos especiais</string>
   <string name="didYouLikeThisPuzzle">Gostaste deste problema?</string>
   <string name="voteToLoadNextOne">Vota para carregares o próximo!</string>
@@ -39,8 +39,16 @@
   <string name="normal">Normal</string>
   <string name="easier">Mais fáceis</string>
   <string name="easiest">Muito mais fáceis</string>
+  <plurals name="nbPointsBelowYourPuzzleRating">
+    <item quantity="one">Um ponto abaixo da sua pontuação de problemas</item>
+    <item quantity="other">%s pontos abaixo da sua pontuação de problemas</item>
+  </plurals>
   <string name="harder">Mais difíceis</string>
   <string name="hardest">Muito mais difíceis</string>
+  <plurals name="nbPointsAboveYourPuzzleRating">
+    <item quantity="one">Um ponto acima da sua pontuação de problemas</item>
+    <item quantity="other">%s pontos acima da sua pontuação de problemas</item>
+  </plurals>
   <string name="example">Exemplo</string>
   <string name="addAnotherTheme">Adicionar outro tema</string>
   <string name="jumpToNextPuzzleImmediately">Saltar imediatamente para o próximo problema</string>

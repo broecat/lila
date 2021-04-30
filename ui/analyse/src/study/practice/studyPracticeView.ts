@@ -1,5 +1,4 @@
-import { h, thunk } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, thunk, VNode } from 'snabbdom';
 import { plural, bind, spinner, richHTML, option } from '../../util';
 import { StudyCtrl } from '../interfaces';
 import { MaybeVNodes } from '../../interfaces';
@@ -66,11 +65,10 @@ export function underboard(ctrl: StudyCtrl): MaybeVNodes {
   else if (!ctrl.data.chapter.practice) return [descView(ctrl, true)];
   switch (p.success()) {
     case true:
-      const next = ctrl.nextChapter();
       return [
         h(
           'a.feedback.win',
-          next
+          ctrl.nextChapter()
             ? {
                 hook: bind('click', p.goToNext),
               }

@@ -5,14 +5,14 @@ import spinnerHtml from './component/spinner';
 import Tagify from '@yaireo/tagify';
 
 lichess.load.then(() => {
-  var $editor = $('.coach-edit');
+  const $editor = $('.coach-edit');
 
-  var todo = (function () {
-    var $overview = $editor.find('.overview');
-    var $el = $overview.find('.todo');
-    var $listed = $editor.find('#form3-listed');
+  const todo = (function () {
+    const $overview = $editor.find('.overview');
+    const $el = $overview.find('.todo');
+    const $listed = $editor.find('#form3-listed');
 
-    var must = [
+    const must = [
       {
         html: '<a href="/account/profile">Complete your lichess profile</a>',
         check() {
@@ -28,7 +28,7 @@ lichess.load.then(() => {
       {
         html: 'Fill in basic information',
         check() {
-          for (let name of ['profile.headline', 'languages']) {
+          for (const name of ['profile.headline', 'languages']) {
             if (!$editor.find('[name="' + name + '"]').val()) return false;
           }
           return true;
@@ -50,7 +50,7 @@ lichess.load.then(() => {
       const points: Cash[] = must.filter(o => !o.check()).map(o => $('<li>').html(o.html));
       const $ul = $el.find('ul').empty();
       points.forEach(p => $ul.append(p));
-      var fail = !!points.length;
+      const fail = !!points.length;
       $overview.toggleClass('with-todo', fail);
       if (fail) $listed.prop('checked', false);
       $listed.prop('disabled', fail);
@@ -93,10 +93,12 @@ lichess.load.then(() => {
     ($(this).parents('form')[0] as HTMLFormElement).submit();
   });
 
-  const langInput = document.getElementById('form3-languages')!;
+  const langInput = document.getElementById('form3-languages') as HTMLInputElement;
+  const whitelistJson = langInput.getAttribute('data-all');
+  const whitelist = whitelistJson ? (JSON.parse(whitelistJson) as Tagify.TagData[]) : undefined;
   const tagify = new Tagify(langInput, {
     maxTags: 10,
-    whitelist: JSON.parse(langInput.getAttribute('data-all') || ''),
+    whitelist,
     enforceWhitelist: true,
     dropdown: {
       enabled: 1,
@@ -106,8 +108,8 @@ lichess.load.then(() => {
     langInput
       .getAttribute('data-value')
       ?.split(',')
-      .map(code => tagify.settings.whitelist.find(l => l.code == code))
-      .filter(notNull)
+      .map(code => whitelist?.find(l => l.code == code))
+      .filter(notNull) as Tagify.TagData[]
   );
 
   todo();

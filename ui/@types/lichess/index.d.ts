@@ -1,3 +1,5 @@
+/// <reference types="highcharts" />
+
 interface Lichess {
   load: Promise<void>; // window.onload promise
   info: any;
@@ -33,7 +35,7 @@ interface Lichess {
   studyTour(study: Study): void;
   studyTourChapter(study: Study): void;
 
-  trans(i18n: { [key: string]: string | undefined }): Trans;
+  trans(i18n: I18nDict): Trans;
   quantity(n: number): 'zero' | 'one' | 'few' | 'many' | 'other';
 
   socket: any;
@@ -45,7 +47,7 @@ interface Lichess {
   miniGame: {
     init(node: HTMLElement): string | null;
     initAll(parent?: HTMLElement): void;
-    update(node: HTMLElement, data: { fen: string; lm: string; wc?: number; bc?: number }): void;
+    update(node: HTMLElement, data: GameUpdate): void;
     finish(node: HTMLElement, win?: Color): void;
   };
   ab?: any;
@@ -80,6 +82,9 @@ interface Lichess {
   quietMode?: boolean;
   keyboardMove?: any;
 }
+
+type I18nDict = { [key: string]: string };
+type I18nKey = string;
 
 type RedirectTo = string | { url: string; cookie: Cookie };
 
@@ -146,8 +151,8 @@ interface Trans {
   (key: string, ...args: Array<string | number>): string;
   noarg: TransNoArg;
   plural(key: string, count: number, ...args: Array<string | number>): string;
-  vdom<T>(key: string, ...args: T[]): (string | T)[];
-  vdomPlural<T>(key: string, count: number, countArg: T, ...args: T[]): (string | T)[];
+  vdom<T>(key: string, ...args: T[]): Array<string | T>;
+  vdomPlural<T>(key: string, count: number, countArg: T, ...args: T[]): Array<string | T>;
 }
 
 type PubsubCallback = (...data: any[]) => void;
@@ -192,19 +197,53 @@ interface LichessAnnouncement {
   date?: string;
 }
 
+interface LichessEditor {
+  getFen(): string;
+  setOrientation(o: Color): void;
+}
+
+declare namespace Editor {
+  export interface Config {
+    baseUrl: string;
+    fen: string;
+    options?: Editor.Options;
+    is3d: boolean;
+    animation: {
+      duration: number;
+    };
+    embed: boolean;
+    positions?: OpeningPosition[];
+    i18n: I18nDict;
+  }
+
+  export interface Options {
+    orientation?: Color;
+    onChange?: (fen: string) => void;
+    inlineCastling?: boolean;
+  }
+
+  export interface OpeningPosition {
+    eco?: string;
+    name: string;
+    fen: string;
+    epd?: string;
+  }
+}
+
 interface Window {
   lichess: Lichess;
 
   moment: any;
   Mousetrap: any;
   Chessground: any;
-  Highcharts: any;
+  Highcharts: Highcharts.Static;
   InfiniteScroll(selector: string): void;
   lichessReplayMusic: () => {
     jump(node: Tree.Node): void;
   };
   hopscotch: any;
   LichessSpeech?: LichessSpeech;
+  LichessEditor?(element: HTMLElement, config: Editor.Config): LichessEditor;
   palantir?: {
     palantir(opts: PalantirOpts): Palantir;
   };
@@ -263,72 +302,9 @@ declare type Perf =
 
 declare type Color = 'white' | 'black';
 
-declare type Key =
-  | 'a0'
-  | 'a1'
-  | 'b1'
-  | 'c1'
-  | 'd1'
-  | 'e1'
-  | 'f1'
-  | 'g1'
-  | 'h1'
-  | 'a2'
-  | 'b2'
-  | 'c2'
-  | 'd2'
-  | 'e2'
-  | 'f2'
-  | 'g2'
-  | 'h2'
-  | 'a3'
-  | 'b3'
-  | 'c3'
-  | 'd3'
-  | 'e3'
-  | 'f3'
-  | 'g3'
-  | 'h3'
-  | 'a4'
-  | 'b4'
-  | 'c4'
-  | 'd4'
-  | 'e4'
-  | 'f4'
-  | 'g4'
-  | 'h4'
-  | 'a5'
-  | 'b5'
-  | 'c5'
-  | 'd5'
-  | 'e5'
-  | 'f5'
-  | 'g5'
-  | 'h5'
-  | 'a6'
-  | 'b6'
-  | 'c6'
-  | 'd6'
-  | 'e6'
-  | 'f6'
-  | 'g6'
-  | 'h6'
-  | 'a7'
-  | 'b7'
-  | 'c7'
-  | 'd7'
-  | 'e7'
-  | 'f7'
-  | 'g7'
-  | 'h7'
-  | 'a8'
-  | 'b8'
-  | 'c8'
-  | 'd8'
-  | 'e8'
-  | 'f8'
-  | 'g8'
-  | 'h8';
+declare type Files = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h';
+declare type Ranks = '1' | '2' | '3' | '4' | '5' | '5' | '6' | '7' | '8';
+declare type Key = 'a0' | `${Files}${Ranks}`;
 declare type Uci = string;
 declare type San = string;
 declare type Fen = string;
@@ -375,7 +351,13 @@ declare namespace Tree {
     fen: Fen;
     knodes: number;
     depth: number;
-    pvs: PvData[];
+    pvs: PvDataServer[];
+  }
+
+  export interface PvDataServer {
+    moves: string;
+    mate?: number;
+    cp?: number;
   }
 
   export interface PvData {
@@ -455,6 +437,14 @@ declare namespace Tree {
   export interface Shape {}
 }
 
+interface GameUpdate {
+  id: string;
+  fen: Fen;
+  lm: Uci;
+  wc?: number;
+  bc?: number;
+}
+
 interface CashStatic {
   powerTip: any;
 }
@@ -485,6 +475,52 @@ declare namespace PowerTip {
   }
 }
 
-declare module '@yaireo/tagify';
+interface HighchartsHTMLElement extends HTMLElement {
+  highcharts: Highcharts.ChartObject;
+}
 
-declare var lichess: Lichess;
+declare namespace Prefs {
+  const enum Coords {
+    Hidden = 0,
+    Inside = 1,
+    Outside = 2,
+  }
+
+  const enum AutoQueen {
+    Never = 1,
+    OnPremove = 2,
+    Always = 3,
+  }
+
+  const enum ShowClockTenths {
+    Never = 0,
+    Below10Secs = 1,
+    Always = 2,
+  }
+
+  const enum ShowResizeHandle {
+    Never = 0,
+    OnlyAtStart = 1,
+    Always = 2,
+  }
+
+  const enum MoveEvent {
+    Click = 0,
+    Drag = 1,
+    ClickOrDrag = 2,
+  }
+
+  const enum Replay {
+    Never = 0,
+    OnlySlowGames = 1,
+    Always = 2,
+  }
+}
+
+interface Dictionary<T> {
+  [key: string]: T | undefined;
+}
+
+type SocketHandlers = Dictionary<(d: any) => void>;
+
+declare const lichess: Lichess;

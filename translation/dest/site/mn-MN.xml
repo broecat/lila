@@ -110,11 +110,8 @@
   <string name="infiniteAnalysis">Хязгааргүй шинжилгээ</string>
   <string name="removesTheDepthLimit">Гүний хязгаарыг арилгавал компьютер илүү ачаална</string>
   <string name="blunder">Ноцтой алдаа</string>
-  <string name="blunders">Ноцтой алдаанууд</string>
   <string name="mistake">Алдаа</string>
-  <string name="mistakes">Алдаанууд</string>
   <string name="inaccuracy">Оновчгүй нүүдэл</string>
-  <string name="inaccuracies">Оновчгүй нүүдлүүд</string>
   <string name="moveTimes">Нүүдлийн хугацаа</string>
   <string name="flipBoard">Талуудын байрлалыг солих</string>
   <string name="threefoldRepetition">Давтсан гурван нүүдэл</string>
@@ -261,7 +258,6 @@
     <item quantity="one">%s секунд нэмж өгөх</item>
     <item quantity="other">%s секунд нэмж өгөх</item>
   </plurals>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Энэ тоглогч өөрийн чансааг хиймлээр өсгөж/бууруулж байна</string>
   <string name="openingExplorerAndTablebase">Шатрын гараа болон төгсгөлүүдийг судлах</string>
   <string name="takeback">Нүүдэл буцаалт</string>
   <string name="proposeATakeback">Нүүдэл буцаах хүсэлт илгээх</string>

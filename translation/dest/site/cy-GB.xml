@@ -103,11 +103,8 @@
   <string name="infiniteAnalysis">Dadansoddiad ddiddiwedd</string>
   <string name="removesTheDepthLimit">Dileu\'r terfyn dyfnder, a cadw\'r cyfrifiadur yn gynnes</string>
   <string name="blunder">Camgymeriad difrifol</string>
-  <string name="blunders">o gamgymeriadau difrifol</string>
   <string name="mistake">Camgymeriad</string>
-  <string name="mistakes">o gamgymeriadau</string>
   <string name="inaccuracy">Wallusrwydd</string>
-  <string name="inaccuracies">o wallusrwyddau</string>
   <string name="moveTimes">Amser symudiadau</string>
   <string name="flipBoard">Troi\'r bwrdd</string>
   <string name="threefoldRepetition">Ailadrodd triphlyg</string>
@@ -234,7 +231,6 @@
   <string name="exportGames">Allforio</string>
   <string name="ratingRange">Graddfa rhwng</string>
   <string name="thisAccountViolatedTos">Mae\'r defnyddiwr y cyfrif yma wedi torri termau defnyddio Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Mae\'r chwaraewr hwn yn cynyddu/lleihau ei raddfa yn ffug</string>
   <string name="openingExplorerAndTablebase">Porwr agoriadau &amp; bas tabl diweddglo</string>
   <string name="takeback">Cymryd yn ôl</string>
   <string name="proposeATakeback">Awgrymu cymryd yn ôl</string>

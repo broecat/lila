@@ -26,12 +26,12 @@ export default function status(ctrl: Ctrl): string {
       return noarg('draw');
     case 'outoftime':
       return `${d.game.turns % 2 === 0 ? noarg('whiteTimeOut') : noarg('blackTimeOut')}${
-        !!d.game.winner ? '' : ` • ${noarg('draw')}`
+        d.game.winner ? '' : ` • ${noarg('draw')}`
       }`;
     case 'noStart':
       return (d.game.winner == 'white' ? 'Black' : 'White') + " didn't move";
     case 'cheat':
-      return 'Cheat detected';
+      return noarg('cheatDetected');
     case 'variantEnd':
       switch (d.game.variant.key) {
         case 'kingOfTheHill':

@@ -9,10 +9,10 @@
   <string name="lengths">Lungimi</string>
   <string name="mates">Mate</string>
   <string name="goals">Obiective</string>
-  <string name="origin" comment="origin&#10;&#10;In this case origin stands for the game the puzzle was found in.">Origine</string>
+  <string name="origin">Origine</string>
   <string name="specialMoves">Mutări speciale</string>
   <string name="didYouLikeThisPuzzle">Ți-a plăcut această problemă?</string>
-  <string name="voteToLoadNextOne">Votează pentru a o încărca pe următoroarea!</string>
+  <string name="voteToLoadNextOne">Votează pentru a-l încărca pe următorul!</string>
   <string name="yourPuzzleRatingX">Scorul tau la problemele de șah: %s</string>
   <string name="findTheBestMoveForWhite">Găsiți cea mai bună mutare pentru alb.</string>
   <string name="findTheBestMoveForBlack">Găsiți cea mai bună mutare pentru negru.</string>
@@ -22,7 +22,7 @@
   <string name="clickToSolve">Dă click pentru a rezolva</string>
   <string name="goodMove">Mutare bună</string>
   <string name="bestMove">Cea mai bună mutare!</string>
-  <string name="keepGoing">Continuați…</string>
+  <string name="keepGoing">Continuați cu următoarea mutare…</string>
   <string name="puzzleSuccess">Succes!</string>
   <string name="puzzleComplete">Puzzle complet!</string>
   <string name="notTheMove">Nu este asta mișcarea!</string>
@@ -40,8 +40,18 @@
   <string name="normal">Normal</string>
   <string name="easier">Mai ușor</string>
   <string name="easiest">Cel mai ușor</string>
+  <plurals name="nbPointsBelowYourPuzzleRating">
+    <item quantity="one">Un punct sub ratingul tău de puzzle-uri</item>
+    <item quantity="few">%s puncte sub ratingul tău de puzzle-uri</item>
+    <item quantity="other">%s de puncte sub ratingul tău de puzzle-uri</item>
+  </plurals>
   <string name="harder">Mai Greu</string>
   <string name="hardest">Cel mai greu</string>
+  <plurals name="nbPointsAboveYourPuzzleRating">
+    <item quantity="one">Un punct deasupra ratingului tău de puzzle-uri</item>
+    <item quantity="few">%s puncte deasupra ratingului tău de puzzle-uri</item>
+    <item quantity="other">%s de puncte deasupra ratingului tău de puzzle-uri</item>
+  </plurals>
   <string name="example">Exemplu</string>
   <string name="addAnotherTheme">Adăugați o altă temă</string>
   <string name="jumpToNextPuzzleImmediately">Sari imediat la problema următoare</string>
@@ -51,4 +61,9 @@
   <string name="history">Istoric probleme de șah</string>
   <string name="solved">rezolvat</string>
   <string name="failed">eșuat</string>
+  <string name="streakDescription">Rezolvă puzzle-uri din ce în ce mai grele și construiește un șir de victorii consecutive. Nu există limită de timp, deci nu te grăbi. O mișcare greșită și jocul s-a terminat! Dar poți sări peste o mutare în fiecare sesiune.</string>
+  <string name="yourStreakX">Puzzle-uri consecutive: %s</string>
+  <string name="streakSkipExplanation">Sări peste această mutare pentru a-ți păstra șirul de puzzle-uri consecutive! Funcționează o singură dată pe rulare.</string>
+  <string name="continueTheStreak">Continuă secvența</string>
+  <string name="newStreak">Începe o nouă secvență</string>
 </resources>

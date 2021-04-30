@@ -1,5 +1,5 @@
 import { Role } from 'chessground/types';
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 import { Clock } from './clock';
 import { Combo } from './combo';
 import CurrentPuzzle from './current';
@@ -15,7 +15,7 @@ export interface Promotion {
 }
 
 export interface PuzPrefs {
-  coords: 0 | 1 | 2;
+  coords: Prefs.Coords;
   is3d: boolean;
   destination: boolean;
   rookCastle: boolean;

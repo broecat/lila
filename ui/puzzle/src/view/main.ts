@@ -5,11 +5,10 @@ import changeColorHandle from 'common/coordsColor';
 import chessground from './chessground';
 import feedbackView from './feedback';
 import { Controller } from '../interfaces';
-import { h } from 'snabbdom';
+import { h, VNode } from 'snabbdom';
 import { onInsert, bind, bindMobileMousedown } from '../util';
 import { render as treeView } from './tree';
 import { view as cevalView } from 'ceval';
-import { VNode } from 'snabbdom/vnode';
 
 function renderAnalyse(ctrl: Controller): VNode {
   return h('div.puzzle__moves.areplay', [treeView(ctrl)]);
@@ -30,7 +29,7 @@ function dataAct(e: Event): string | null {
   return target.getAttribute('data-act') || (target.parentNode as HTMLElement).getAttribute('data-act');
 }
 
-function jumpButton(icon: string, effect: string, disabled: boolean, glowing: boolean = false): VNode {
+function jumpButton(icon: string, effect: string, disabled: boolean, glowing = false): VNode {
   return h('button.fbt', {
     class: { disabled, glowing },
     attrs: {
@@ -82,13 +81,13 @@ export default function (ctrl: Controller): VNode {
     cevalShown = showCeval;
   }
   return h(
-    `main.puzzle.puzzle-${ctrl.getData().replay ? 'replay' : 'play'}`,
+    `main.puzzle.puzzle-${ctrl.getData().replay ? 'replay' : 'play'}${ctrl.streak ? '.puzzle--streak' : ''}`,
     {
       class: { 'gauge-on': gaugeOn },
       hook: {
         postpatch(old, vnode) {
           if (old.data!.gaugeOn !== gaugeOn) {
-            if (ctrl.pref.coords == 2) {
+            if (ctrl.pref.coords === Prefs.Coords.Outside) {
               $('body').toggleClass('coords-in', gaugeOn).toggleClass('coords-out', !gaugeOn);
               changeColorHandle();
             }
@@ -102,7 +101,7 @@ export default function (ctrl: Controller): VNode {
       h('aside.puzzle__side', [
         side.replay(ctrl),
         side.puzzleBox(ctrl),
-        side.userBox(ctrl),
+        ctrl.streak ? side.streakBox(ctrl) : side.userBox(ctrl),
         side.config(ctrl),
         theme(ctrl),
       ]),
@@ -148,23 +147,32 @@ function session(ctrl: Controller) {
           },
           attrs: {
             href: `/training/${ctrl.session.theme}/${round.id}`,
+            ...(ctrl.streak ? { target: '_blank' } : {}),
           },
         },
         rd
       );
     }),
     rounds.find(r => r.id == current)
-      ? h('a.session-new', {
-          key: 'new',
-          attrs: {
-            href: `/training/${ctrl.session.theme}`,
+      ? ctrl.streak
+        ? null
+        : h('a.session-new', {
+            key: 'new',
+            attrs: {
+              href: `/training/${ctrl.session.theme}`,
+            },
+          })
+      : h(
+          'a.result-cursor.current',
+          {
+            key: current,
+            attrs: ctrl.streak
+              ? {}
+              : {
+                  href: `/training/${ctrl.session.theme}/${current}`,
+                },
           },
-        })
-      : h('a.result-cursor.current', {
-          key: current,
-          attrs: {
-            href: `/training/${ctrl.session.theme}/${current}`,
-          },
-        }),
+          ctrl.streak?.data.index
+        ),
   ]);
 }

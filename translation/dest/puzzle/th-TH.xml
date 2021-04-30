@@ -4,10 +4,11 @@
   <string name="puzzleThemes">ธีมปริศนา</string>
   <string name="recommended">แนะนำ</string>
   <string name="phases">ช่วงของเกม</string>
+  <string name="advanced">ขั้นสูง</string>
   <string name="lengths">จำนวนตาเดิน</string>
   <string name="mates">การรุกจน</string>
   <string name="goals">เป้าหมาย</string>
-  <string name="origin" comment="origin&#10;&#10;In this case origin stands for the game the puzzle was found in.">ต้นกำเนิดเกม</string>
+  <string name="origin">ต้นกำเนิดเกม</string>
   <string name="specialMoves">การเดินพิเศษ</string>
   <string name="didYouLikeThisPuzzle">คุณชอบปริศนานี้ไหม?</string>
   <string name="voteToLoadNextOne">ให้คะแนนเพี่อโหลดปริศนาต่อไป!</string>

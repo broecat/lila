@@ -1,7 +1,5 @@
 package lila.evaluation
 
-import chess.Color
-
 sealed trait GameAssessment {
   val id: Int
   val description: String

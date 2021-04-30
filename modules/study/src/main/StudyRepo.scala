@@ -53,6 +53,8 @@ final class StudyRepo(private[study] val coll: AsyncColl)(implicit
 
   def exists(id: Study.Id) = coll(_.exists($id(id)))
 
+  def lookup(local: String) = $lookup.simple(coll, "study", local, "_id")
+
   private[study] def selectOwnerId(ownerId: User.ID)   = $doc("ownerId" -> ownerId)
   private[study] def selectMemberId(memberId: User.ID) = $doc(F.uids -> memberId)
   private[study] val selectPublic = $doc(
@@ -123,6 +125,9 @@ final class StudyRepo(private[study] val coll: AsyncColl)(implicit
   def membersById(id: Study.Id): Fu[Option[StudyMembers]] =
     coll(_.primitiveOne[StudyMembers]($id(id), "members"))
 
+  def membersByIds(ids: Iterable[Study.Id]): Fu[List[StudyMembers]] =
+    coll(_.primitive[StudyMembers]($inIds(ids), "members"))
+
   def setPosition(studyId: Study.Id, position: Position.Ref): Funit =
     coll(
       _.update
@@ -180,10 +185,6 @@ final class StudyRepo(private[study] val coll: AsyncColl)(implicit
         .cursor[Study.IdName](readPref)
         .list(nb)
     }
-
-  // heavy AF. Only use for GDPR.
-  private[study] def allIdsByOwner(userId: User.ID): Fu[List[Study.Id]] =
-    coll(_.distinctEasy[Study.Id, List]("_id", selectOwnerId(userId), readPref))
 
   def recentByContributor(userId: User.ID, nb: Int) =
     coll {

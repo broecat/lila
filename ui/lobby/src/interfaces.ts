@@ -1,4 +1,4 @@
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 
 export type MaybeVNode = VNode | string | null | undefined;
 export type MaybeVNodes = MaybeVNode[];
@@ -40,7 +40,7 @@ export interface NowPlaying {
   gameId: string;
   fen: Fen;
   color: Color;
-  lastMove: String;
+  lastMove: string;
   variant: {
     key: string;
     name: string;

@@ -22,10 +22,10 @@
   <string name="score">Punktestand</string>
   <string name="moves">Züge</string>
   <string name="accuracy">Genauigkeit</string>
-  <string name="combo">Erfolgsfolge</string>
+  <string name="combo">Kombo</string>
   <string name="time">Zeit</string>
   <string name="timePerMove">Zeit pro Zug</string>
-  <string name="highestSolved">Schwierigste, gelöste Aufgabe</string>
+  <string name="highestSolved">Schwierigste gelöste Aufgabe</string>
   <string name="puzzlesPlayed">Gespielte Aufgaben</string>
   <string name="newRun">Neuer Durchlauf (drücke: Leertaste)</string>
   <string name="endRun">Beende den Durchlauf (drücke: Eingabetaste)</string>
@@ -39,9 +39,14 @@
   <string name="spectating">Zuschauen</string>
   <string name="joinTheRace">Nimm am Rennen teil!</string>
   <string name="yourRankX">Deine Platzierung: %s</string>
-  <string name="waitForRematch" comment="waitForRematch&#10;&#10;When a user is spectating a puzzle race, they are not able to join it. This is the title of a disabled button instructing the user to wait for a rematch before joining the game.">Warte auf ein neues Rennen</string>
+  <string name="waitForRematch">Warte auf ein neues Rennen</string>
   <string name="nextRace">Nächstes Rennen</string>
-  <string name="joinRematch">Teilnahme am nächsten Rennen</string>
+  <string name="joinRematch">Am nächsten Rennen teilnehmen</string>
   <string name="waitingToStart">Warte auf den Start</string>
-  <string name="createNewGame" comment="createNewGame&#10;&#10;When a puzzle race (https://lichess.org/racer) is completed, this is the title of a button for creating a new racing game.">Erstelle ein neues Rennen</string>
+  <string name="createNewGame">Ein neues Rennen erstellen</string>
+  <string name="joinPublicRace">An einem öffentlichen Rennen teilnehmen</string>
+  <string name="raceYourFriends">Lade deine Freunde zu einem Rennen ein</string>
+  <string name="skip">überspringen</string>
+  <string name="skipHelp">Du kannst einen Zug pro Rennen überspringen:</string>
+  <string name="skipExplanation">Überspringe diesen Zug, um deine Kombination beizubehalten! Du kannst das nur einmal pro Rennen machen.</string>
 </resources>

@@ -2,16 +2,17 @@ package lila.security
 
 import org.joda.time.DateTime
 import play.api.mvc.RequestHeader
+import reactivemongo.akkastream.{ cursorProducer, AkkaStreamCursor }
+import reactivemongo.api.bson.BSONNull
 import reactivemongo.api.bson.{ BSONHandler, Macros }
 import reactivemongo.api.CursorProducer
 import reactivemongo.api.ReadPreference
 import scala.concurrent.blocking
 import scala.concurrent.duration._
 
-import lila.common.{ ApiVersion, HTTPRequest, IpAddress, IpV4Address, ThreadLocalRandom }
+import lila.common.{ ApiVersion, HTTPRequest, IpAddress }
 import lila.db.dsl._
 import lila.user.User
-import reactivemongo.api.bson.BSONNull
 
 final class Store(val coll: Coll, cacheApi: lila.memo.CacheApi)(implicit
     ec: scala.concurrent.ExecutionContext
@@ -69,7 +70,7 @@ final class Store(val coll: Coll, cacheApi: lila.memo.CacheApi)(implicit
           "date" -> DateTime.now,
           "up"   -> up,
           "api"  -> apiVersion.map(_.value),
-          "fp"   -> fp.flatMap(FingerHash.apply).flatMap(fingerHashBSONHandler.writeOpt)
+          "fp"   -> fp.flatMap(FingerHash.apply).flatMap(FingerHash.fingerHashHandler.writeOpt)
         )
       )
       .void
@@ -81,9 +82,6 @@ final class Store(val coll: Coll, cacheApi: lila.memo.CacheApi)(implicit
         $set("up" -> false)
       )
       .void >>- uncache(sessionId)
-
-  def definitelyEraseAllUserInfo(user: User): Funit =
-    coll.delete.one($doc("user" -> user.id)).void
 
   def closeUserAndSessionId(userId: User.ID, sessionId: String): Funit =
     coll.update
@@ -119,12 +117,11 @@ final class Store(val coll: Coll, cacheApi: lila.memo.CacheApi)(implicit
       .cursor[UserSession]()
       .gather[List](nb)
 
-  def allSessions(userId: User.ID): Fu[List[UserSession]] =
+  def allSessions(userId: User.ID): AkkaStreamCursor[UserSession] =
     coll
       .find($doc("user" -> userId))
       .sort($doc("date" -> -1))
       .cursor[UserSession](ReadPreference.secondaryPreferred)
-      .gather[List](200)
 
   def setFingerPrint(id: String, fp: FingerPrint): Fu[FingerHash] =
     FingerHash(fp) match {
@@ -227,12 +224,13 @@ final class Store(val coll: Coll, cacheApi: lila.memo.CacheApi)(implicit
 
 object Store {
 
-  case class Info(ip: IpAddress, ua: String, fp: Option[FingerHash], date: DateTime) {
+  case class Info(ip: IpAddress, ua: UserAgent, fp: Option[FingerHash], date: DateTime) {
     def datedIp = Dated(ip, date)
     def datedFp = fp.map { Dated(_, date) }
     def datedUa = Dated(ua, date)
   }
 
-  implicit val fingerHashBSONHandler: BSONHandler[FingerHash] = stringIsoHandler[FingerHash]
-  implicit val InfoReader                                     = Macros.reader[Info]
+  import FingerHash.fingerHashHandler
+  import UserAgent.userAgentHandler
+  implicit val InfoReader = Macros.reader[Info]
 }

@@ -1,6 +1,5 @@
 import { Ctrl, Challenge, ChallengeData, ChallengeDirection, ChallengeUser, TimeControl } from './interfaces';
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 
 export function loaded(ctrl: Ctrl): VNode {
   return ctrl.redirecting()
@@ -13,7 +12,7 @@ export function loading(): VNode {
 }
 
 function renderContent(ctrl: Ctrl): VNode[] {
-  let d = ctrl.data();
+  const d = ctrl.data();
   const nb = d.in.length + d.out.length;
   return nb ? [allChallenges(ctrl, d, nb)] : [empty(), create()];
 }

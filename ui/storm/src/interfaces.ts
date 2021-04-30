@@ -4,7 +4,7 @@ import { Config, PuzPrefs, Puzzle } from 'puz/interfaces';
 export interface StormOpts {
   data: StormData;
   pref: StormPrefs;
-  i18n: any;
+  i18n: I18nDict;
 }
 
 export interface StormPrefs extends PuzPrefs {}
@@ -53,4 +53,5 @@ export interface NewHigh {
 
 export interface StormConfig extends Config {
   timeToStart: number;
+  minFirstMoveTime: number;
 }

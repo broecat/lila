@@ -23,7 +23,7 @@ type Send = (t: Tpe, d: Payload, o?: any) => void;
 
 interface Options {
   idle: boolean;
-  pingMaxLag: number; // time to wait for pong before reseting the connection
+  pingMaxLag: number; // time to wait for pong before resetting the connection
   pingDelay: number; // time between pong and ping
   autoReconnectDelay: number;
   protocol: string;
@@ -54,17 +54,17 @@ export default class StrongSocket {
   connectSchedule: Timeout;
   ackable: Ackable = new Ackable((t, d, o) => this.send(t, d, o));
   lastPingTime: number = performance.now();
-  pongCount: number = 0;
-  averageLag: number = 0;
-  tryOtherUrl: boolean = false;
-  autoReconnect: boolean = true;
-  nbConnects: number = 0;
+  pongCount = 0;
+  averageLag = 0;
+  tryOtherUrl = false;
+  autoReconnect = true;
+  nbConnects = 0;
   storage: LichessStorage = makeStorage.make('surl15');
   private _sign?: string;
 
   static defaultOptions: Options = {
     idle: false,
-    pingMaxLag: 9000, // time to wait for pong before reseting the connection
+    pingMaxLag: 9000, // time to wait for pong before resetting the connection
     pingDelay: 2500, // time between pong and ping
     autoReconnectDelay: 3500,
     protocol: location.protocol === 'https:' ? 'wss:' : 'ws:',

@@ -12,6 +12,7 @@ final class Env(
     reporter: lila.hub.actors.Report,
     chatApi: lila.chat.ChatApi,
     userRepo: lila.user.UserRepo,
+    noteApi: lila.user.NoteApi,
     lightUser: lila.common.LightUser.Getter,
     db: lila.db.Db,
     cacheApi: lila.memo.CacheApi

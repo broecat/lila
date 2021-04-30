@@ -1,11 +1,8 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import { Hooks } from 'snabbdom/hooks';
+import { h, VNode, Hooks } from 'snabbdom';
 import * as util from '../util';
 import * as game from 'game';
 import * as status from 'game/status';
 import { game as gameRoute } from 'game/router';
-import { PlayerUser } from 'game';
 import { RoundData, MaybeVNodes } from '../interfaces';
 import { ClockData } from '../clock/clockCtrl';
 import RoundController from '../ctrl';
@@ -14,7 +11,7 @@ function analysisBoardOrientation(data: RoundData) {
   return data.game.variant.key === 'racingKings' ? 'white' : data.player.color;
 }
 
-function poolUrl(clock: ClockData, blocking?: PlayerUser) {
+function poolUrl(clock: ClockData, blocking?: game.PlayerUser) {
   return '/#pool/' + clock.initial / 60 + '+' + clock.increment + (blocking ? '/' + blocking.id : '');
 }
 
@@ -215,7 +212,7 @@ export function cancelTakebackProposition(ctrl: RoundController) {
     : null;
 }
 
-function acceptButton(ctrl: RoundController, klass: string, action: () => void, i18nKey: string = 'accept') {
+function acceptButton(ctrl: RoundController, klass: string, action: () => void, i18nKey: I18nKey = 'accept') {
   const text = ctrl.noarg(i18nKey);
   return ctrl.nvui
     ? h(
@@ -233,7 +230,7 @@ function acceptButton(ctrl: RoundController, klass: string, action: () => void, 
         hook: util.bind('click', action),
       });
 }
-function declineButton(ctrl: RoundController, action: () => void, i18nKey: string = 'decline') {
+function declineButton(ctrl: RoundController, action: () => void, i18nKey: I18nKey = 'decline') {
   const text = ctrl.noarg(i18nKey);
   return ctrl.nvui
     ? h(

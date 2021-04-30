@@ -20,7 +20,6 @@ final class ChatApi(
     spam: lila.security.Spam,
     shutup: lila.hub.actors.Shutup,
     cacheApi: lila.memo.CacheApi,
-    maxLinesPerChat: Chat.MaxLines,
     netDomain: NetDomain
 )(implicit ec: scala.concurrent.ExecutionContext, actorSystem: akka.actor.ActorSystem) {
 
@@ -149,7 +148,7 @@ final class ChatApi(
         busChan: BusChan.Select
     ): Funit =
       coll.byId[UserChat](chatId.value) zip userRepo.byId(modId) zip userRepo.byId(userId) flatMap {
-        case Some(chat) ~ Some(mod) ~ Some(user) if isMod(mod) || scope == ChatTimeout.Scope.Local =>
+        case ((Some(chat), Some(mod)), Some(user)) if isMod(mod) || scope == ChatTimeout.Scope.Local =>
           doTimeout(chat, mod, user, reason, scope, text, busChan)
         case _ => funit
       }
@@ -204,7 +203,7 @@ final class ChatApi(
             line foreach { l =>
               publish(chat.id, actorApi.ChatLine(chat.id, l), busChan)
             }
-            if (isMod(mod))
+            if (isMod(mod)) {
               lila.common.Bus.publish(
                 lila.hub.actorApi.mod.ChatTimeout(
                   mod = mod.id,
@@ -214,17 +213,22 @@ final class ChatApi(
                 ),
                 "chatTimeout"
               )
-            else logger.info(s"${mod.username} times out ${user.username} in #${c.id} for ${reason.key}")
+              lila.common.Bus
+                .publish(lila.hub.actorApi.security.DeletePublicChats(user.id), "deletePublicChats")
+            } else logger.info(s"${mod.username} times out ${user.username} in #${c.id} for ${reason.key}")
           }
         }
       }
 
-    def delete(c: UserChat, user: User, busChan: BusChan.Select): Funit = {
-      val chat = c.markDeleted(user)
-      coll.update.one($id(chat.id), chat).void >>- {
-        cached invalidate chat.id
-        publish(chat.id, actorApi.OnTimeout(chat.id, user.id), busChan)
-      }
+    def delete(c: UserChat, user: User, busChan: BusChan.Select): Fu[Boolean] = {
+      val chat   = c.markDeleted(user)
+      val change = chat != c
+      change.?? {
+        coll.update.one($id(chat.id), chat).void >>- {
+          cached invalidate chat.id
+          publish(chat.id, actorApi.OnTimeout(chat.id, user.id), busChan)
+        }
+      } inject change
     }
 
     private def isMod(user: User) = lila.security.Granter(_.ChatTimeout)(user)
@@ -252,15 +256,6 @@ final class ChatApi(
             }
           }
         case _ => none
-      }
-
-    def findLinesBy(chatId: Chat.Id, userId: User.ID): Fu[List[String]] =
-      coll.find($id(chatId)).one[UserChat](ReadPreference.secondaryPreferred) map {
-        _ ?? {
-          _.lines.collect {
-            case l if l.userId == userId => l.text
-          }
-        }
       }
   }
 
@@ -314,7 +309,7 @@ final class ChatApi(
           "$push" -> $doc(
             Chat.BSONFields.lines -> $doc(
               "$each"  -> List(line),
-              "$slice" -> -maxLinesPerChat.value
+              "$slice" -> -200
             )
           )
         ),

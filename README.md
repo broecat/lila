@@ -32,7 +32,7 @@ HTTP requests and WebSocket connections can be proxied by [nginx](https://nginx.
 The web client is written in [TypeScript](https://www.typescriptlang.org/) and [snabbdom](https://github.com/snabbdom/snabbdom), using [Sass](https://sass-lang.com/) to generate CSS.
 The [blog](https://lichess.org/blog) uses a free open content plan from [prismic.io](https://prismic.io).
 All rated games are published in a [free PGN database](https://database.lichess.org).
-Browser testing done with [![Browserstack](https://raw.githubusercontent.com/ornicar/lila/master/public/images/browserstack.png)](https://www.browserstack.com).
+Browser testing done with [Browserstack](https://www.browserstack.com).
 Proxy detection done with [IP2Proxy database](https://www.ip2location.com/database/ip2proxy).
 Please help us [translate Lichess with Crowdin](https://crowdin.com/project/lichess).
 
@@ -54,10 +54,6 @@ The Wiki describes [how to setup a development environment](https://github.com/o
 
 Feel free to use the [Lichess API](https://lichess.org/api) in your applications and websites.
 
-## Credits
-
-See the [contributors](https://github.com/ornicar/lila/graphs/contributors) on this repository and [lichess.org/thanks](https://lichess.org/thanks).
-
 ## Supported browsers
 
 | Name              | Version | Notes                                             |
@@ -74,5 +70,11 @@ For your own sake, please upgrade. Security and performance, think about it!
 ## License
 
 Lila is licensed under the GNU Affero General Public License 3 or any later
-version at your choice with an exception for Highcharts. See COPYING for
+version at your choice with an exception for Highcharts. See [copying](https://github.com/ornicar/lila/blob/master/COPYING.md) for
 details.
+
+## Credits
+
+See [lichess.org/thanks](https://lichess.org/thanks) and the contributors here:
+
+[![GitHub contributors](https://contrib.rocks/image?repo=ornicar/lila)](https://github.com/ornicar/lila/graphs/contributors)

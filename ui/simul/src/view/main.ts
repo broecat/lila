@@ -2,7 +2,7 @@ import { h } from 'snabbdom';
 import SimulCtrl from '../ctrl';
 import * as util from './util';
 import created from './created';
-import { richHTML } from './text';
+import { richHTML } from 'common/richText';
 import results from './results';
 import pairings from './pairings';
 
@@ -46,13 +46,11 @@ export default function (ctrl: SimulCtrl) {
 }
 
 const showText = (ctrl: SimulCtrl) =>
-  ctrl.data.text
-    ? h('div.simul-text', [
-        h('p', {
-          hook: richHTML(ctrl.data.text),
-        }),
-      ])
-    : null;
+  h('div.simul-text', [
+    h('p', {
+      hook: richHTML(ctrl.data.text),
+    }),
+  ]);
 
 const started = (ctrl: SimulCtrl) => [util.title(ctrl), showText(ctrl), results(ctrl), pairings(ctrl)];
 

@@ -1,17 +1,27 @@
 import { bind, titleNameToId, onInsert } from '../util';
-import { h } from 'snabbdom';
+import { h, VNode } from 'snabbdom';
 import { modal } from '../modal';
 import { prop, Prop } from 'common';
 import { StudyMemberMap } from './interfaces';
-import { VNode } from 'snabbdom/vnode';
+import { AnalyseSocketSend } from '../socket';
+
+export interface StudyInviteFormCtrl {
+  open: Prop<boolean>;
+  members: Prop<StudyMemberMap>;
+  spectators: Prop<string[]>;
+  toggle(): void;
+  invite(titleName: string): void;
+  redraw(): void;
+  trans: Trans;
+}
 
 export function makeCtrl(
-  send: SocketSend,
+  send: AnalyseSocketSend,
   members: Prop<StudyMemberMap>,
   setTab: () => void,
   redraw: () => void,
   trans: Trans
-) {
+): StudyInviteFormCtrl {
   const open = prop(false),
     spectators = prop<string[]>([]);
   return {

@@ -1,8 +1,7 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import { Hooks } from 'snabbdom/hooks';
-import { Attrs } from 'snabbdom/modules/attributes';
+import { h, VNode, Hooks, Attrs } from 'snabbdom';
 import { fixCrazySan } from 'chess';
+
+export { autolink, innerHTML, enrichText, richHTML, toYouTubeEmbed, toTwitchEmbed } from 'common/richText';
 
 export const emptyRedButton = 'button.button.button-red.button-empty';
 
@@ -16,7 +15,7 @@ export function plyColor(ply: number): Color {
   return ply % 2 === 0 ? 'white' : 'black';
 }
 
-export function bindMobileMousedown(el: HTMLElement, f: (e: Event) => any, redraw?: () => void) {
+export function bindMobileMousedown(el: HTMLElement, f: (e: Event) => unknown, redraw?: () => void) {
   for (const mousedownEvent of ['touchstart', 'mousedown']) {
     el.addEventListener(mousedownEvent, e => {
       f(e);
@@ -26,8 +25,8 @@ export function bindMobileMousedown(el: HTMLElement, f: (e: Event) => any, redra
   }
 }
 
-export function bindMobileTapHold(el: HTMLElement, f: (e: Event) => any, redraw?: () => void) {
-  let longPressCountdown;
+export function bindMobileTapHold(el: HTMLElement, f: (e: Event) => unknown, redraw?: () => void) {
+  let longPressCountdown: number;
 
   el.addEventListener('touchstart', e => {
     longPressCountdown = setTimeout(() => {
@@ -49,7 +48,7 @@ export function bindMobileTapHold(el: HTMLElement, f: (e: Event) => any, redraw?
   });
 }
 
-function listenTo(el: HTMLElement, eventName: string, f: (e: Event) => any, redraw?: () => void) {
+function listenTo(el: HTMLElement, eventName: string, f: (e: Event) => unknown, redraw?: () => void) {
   el.addEventListener(eventName, e => {
     const res = f(e);
     if (res === false) e.preventDefault();
@@ -58,11 +57,11 @@ function listenTo(el: HTMLElement, eventName: string, f: (e: Event) => any, redr
   });
 }
 
-export function bind(eventName: string, f: (e: Event) => any, redraw?: () => void): Hooks {
+export function bind(eventName: string, f: (e: Event) => unknown, redraw?: () => void): Hooks {
   return onInsert(el => listenTo(el, eventName, f, redraw));
 }
 
-export function bindSubmit(f: (e: Event) => any, redraw?: () => void): Hooks {
+export function bindSubmit(f: (e: Event) => unknown, redraw?: () => void): Hooks {
   return bind(
     'submit',
     e => {
@@ -123,89 +122,8 @@ export function spinner(): VNode {
   ]);
 }
 
-export function innerHTML<A>(a: A, toHtml: (a: A) => string): Hooks {
-  return {
-    insert(vnode) {
-      (vnode.elm as HTMLElement).innerHTML = toHtml(a);
-      vnode.data!.cachedA = a;
-    },
-    postpatch(old, vnode) {
-      if (old.data!.cachedA !== a) {
-        (vnode.elm as HTMLElement).innerHTML = toHtml(a);
-      }
-      vnode.data!.cachedA = a;
-    },
-  };
-}
-
-export function richHTML(text: string, newLines: boolean = true): Hooks {
-  return innerHTML(text, t => enrichText(t, newLines));
-}
-
 export function baseUrl() {
   return `${window.location.protocol}//${window.location.host}`;
-}
-
-export function toYouTubeEmbed(url: string): string | undefined {
-  const embedUrl = toYouTubeEmbedUrl(url);
-  if (embedUrl)
-    return `<div class="embed"><iframe width="100%" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-  return undefined;
-}
-
-function toYouTubeEmbedUrl(url: string) {
-  if (!url) return;
-  var m = url.match(
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch)?(?:\?v=)?([^"&?\/ ]{11})(?:\?|&|)(\S*)/i
-  );
-  if (!m) return;
-  var start = 0;
-  m[2].split('&').forEach(function (p) {
-    var s = p.split('=');
-    if (s[0] === 't' || s[0] === 'start') {
-      if (s[1].match(/^\d+$/)) start = parseInt(s[1]);
-      else {
-        const n = s[1].match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/)!;
-        start = (parseInt(n[1]) || 0) * 3600 + (parseInt(n[2]) || 0) * 60 + (parseInt(n[3]) || 0);
-      }
-    }
-  });
-  var params = 'modestbranding=1&rel=0&controls=2&iv_load_policy=3' + (start ? '&start=' + start : '');
-  return 'https://www.youtube.com/embed/' + m[1] + '?' + params;
-}
-
-export function toTwitchEmbed(url: string): string | undefined {
-  const embedUrl = toTwitchEmbedUrl(url);
-  if (embedUrl)
-    return `<div class="embed"><iframe width="100%" src="${embedUrl}" frameborder=0 allowfullscreen></iframe></div>`;
-  return undefined;
-}
-
-function toTwitchEmbedUrl(url: string) {
-  if (!url) return;
-  const m = url.match(/(?:https?:\/\/)?(?:www\.)?(?:twitch.tv)\/([^"&?/ ]+)/i);
-  if (m) return `https://player.twitch.tv/?channel=${m[1]}&parent=${location.hostname}&autoplay=false`;
-  return undefined;
-}
-
-const newLineRegex = /\n/g;
-
-function toLink(url: string) {
-  const show = url.replace(/https?:\/\//, '');
-  return `<a target="_blank" rel="nofollow noopener noreferrer" href="${url}">${show}</a>`;
-}
-
-export function enrichText(text: string, allowNewlines: boolean = true): string {
-  let html = autolink(lichess.escapeHtml(text), toLink);
-  if (allowNewlines) html = html.replace(newLineRegex, '<br>');
-  return html;
-}
-
-// from https://github.com/bryanwoods/autolink-js/blob/master/autolink.js
-const linkRegex = /(^|[\s\n]|<[A-Za-z]*\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
-
-export function autolink(str: string, callback: (str: string) => string): string {
-  return str.replace(linkRegex, (_, space, url) => space + callback(url));
 }
 
 export function option(value: string, current: string | undefined, name: string) {
@@ -225,13 +143,12 @@ export function scrollTo(el: HTMLElement | undefined, target: HTMLElement | null
   if (el && target) el.scrollTop = target.offsetTop - el.offsetHeight / 2 + target.offsetHeight / 2;
 }
 
-export function treeReconstruct(parts: any): Tree.Node {
+export function treeReconstruct(parts: Tree.Node[]): Tree.Node {
   const root = parts[0],
     nb = parts.length;
-  let node = root,
-    i: number;
+  let node = root;
   root.id = '';
-  for (i = 1; i < nb; i++) {
+  for (let i = 1; i < nb; i++) {
     const n = parts[i];
     if (node.children) node.children.unshift(n);
     else node.children = [n];

@@ -115,11 +115,8 @@
   <string name="infiniteAnalysis">Lõputu analüüs</string>
   <string name="removesTheDepthLimit">Eemaldab sügavuslimiidi ja hoiab arvuti soojana</string>
   <string name="blunder">Viga</string>
-  <string name="blunders">Viga</string>
   <string name="mistake">Eksimus</string>
-  <string name="mistakes">Eksimust</string>
   <string name="inaccuracy">Ebatäpsus</string>
-  <string name="inaccuracies">Ebatäpsust</string>
   <string name="moveTimes">Aeg käigu tegemisel</string>
   <string name="flipBoard">Keera lauda</string>
   <string name="threefoldRepetition">Kolmekordne kordus</string>
@@ -278,7 +275,6 @@
     <item quantity="other">Lisa %s sekundit</item>
   </plurals>
   <string name="thisAccountViolatedTos">Selle konto kasutaja rikkus Lichessi teenusetingimusi</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">See mängija kunstlikult tõstab / vähendab oma reitingut</string>
   <string name="openingExplorerAndTablebase">Avangute uurija &amp; lõppmängude andmebaas</string>
   <string name="takeback">Tagasivõtt</string>
   <string name="proposeATakeback">Paku tagasivõttu</string>

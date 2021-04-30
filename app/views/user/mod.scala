@@ -7,12 +7,13 @@ import lila.api.Context
 import lila.app.templating.Environment._
 import lila.app.ui.ScalatagsTemplate._
 import lila.evaluation.Display
+import lila.mod.IpRender.RenderIp
 import lila.mod.ModPresets
 import lila.playban.RageSit
 import lila.security.Granter
 import lila.security.{ Permission, UserLogins }
 import lila.user.{ Holder, User }
-import lila.mod.IpRender.RenderIp
+import lila.appeal.Appeal
 
 object mod {
   private def mzSection(key: String) = div(id := s"mz_$key", cls := "mz-section")
@@ -118,7 +119,7 @@ object mod {
             title := "Activate kid mode if not already the case",
             cls := "xhr"
           )(
-            submitButton(cls := "btn-rack__btn confirm")("Kid")
+            submitButton(cls := "btn-rack__btn confirm", cls := u.kid.option("active"))("Kid")
           )
         },
         isGranted(_.RemoveRanking) option {
@@ -525,7 +526,7 @@ object mod {
     if (nb > 0) td(cls := "i", dataSort := nb)(content)
     else td
 
-  def otherUsers(mod: Holder, u: User, data: UserLogins.TableData)(implicit
+  def otherUsers(mod: Holder, u: User, data: UserLogins.TableData, appeals: List[Appeal])(implicit
       ctx: Context,
       renderIp: RenderIp
   ): Tag = {
@@ -542,7 +543,7 @@ object mod {
               )
             ),
             isGranted(_.Admin) option th("Email"),
-            sortNumberTh("Same"),
+            sortNumberTh(dataSortDefault)("Same"),
             th("Games"),
             sortNumberTh(playban)(cls := "i", title := "Playban"),
             sortNumberTh(alt)(cls := "i", title := "Alt"),
@@ -552,6 +553,7 @@ object mod {
             sortNumberTh(closed)(cls := "i", title := "Closed"),
             sortNumberTh(reportban)(cls := "i", title := "Reportban"),
             sortNumberTh(notesText)(cls := "i", title := "Notes"),
+            sortNumberTh(iconTag("6"))(cls := "i", title := "Appeals"),
             sortNumberTh("Created"),
             sortNumberTh("Active"),
             isGranted(_.CloseAccount) option th
@@ -561,6 +563,7 @@ object mod {
           othersWithEmail.others.map { case other @ UserLogins.OtherUser(o, _, _) =>
             val userNotes =
               notes.filter(n => n.to == o.id && (ctx.me.exists(n.isFrom) || isGranted(_.Admin)))
+            val userAppeal = appeals.find(_.isAbout(o.id))
             tr(
               dataTags := s"${other.ips.map(renderIp).mkString(" ")} ${other.fps.mkString(" ")}",
               cls := (o == u) option "same"
@@ -598,6 +601,18 @@ object mod {
                   )
                 )
               } getOrElse td(dataSort := 0),
+              userAppeal match {
+                case None => td(dataSort := 0)
+                case Some(appeal) =>
+                  td(dataSort := 1)(
+                    a(
+                      href := isGranted(_.Appeals).option(routes.Appeal.show(o.username).url),
+                      cls := "text",
+                      dataIcon := "6",
+                      title := pluralize("appeal message", appeal.msgs.size)
+                    )(appeal.msgs.size)
+                  )
+              },
               td(dataSort := o.createdAt.getMillis)(momentFromNowServer(o.createdAt)),
               td(dataSort := o.seenAt.map(_.getMillis.toString))(o.seenAt.map(momentFromNowServer)),
               isGranted(_.CloseAccount) option td(
@@ -613,14 +628,15 @@ object mod {
     )
   }
 
-  def identification(mod: Holder, logins: UserLogins)(implicit
+  def identification(mod: Holder, user: User, logins: UserLogins)(implicit
       ctx: Context,
       renderIp: RenderIp
   ): Frag = {
-    val canIpBan = isGranted(_.IpBan)
-    val canFpBan = isGranted(_.PrintBan)
+    val canIpBan  = isGranted(_.IpBan)
+    val canFpBan  = isGranted(_.PrintBan)
+    val canLocate = isGranted(_.Admin) || user.lameOrTrollOrAlt
     mzSection("identification")(
-      div(cls := "spy_locs")(
+      canLocate option div(cls := "spy_locs")(
         table(cls := "slist slist--sort")(
           thead(
             tr(
@@ -645,7 +661,7 @@ object mod {
           )
         )
       ),
-      div(cls := "spy_uas")(
+      canLocate option div(cls := "spy_uas")(
         table(cls := "slist slist--sort")(
           thead(
             tr(
@@ -653,24 +669,22 @@ object mod {
               th("OS"),
               th("Client"),
               sortNumberTh("Date"),
-              th("Flag")
+              th("Type")
             )
           ),
           tbody(
             logins.uas
               .sortBy(-_.seconds)
               .map { ua =>
-                import ua.value.client._
+                val parsed = ua.value.parse
                 tr(
-                  td(title := ua.value.ua)(if (device.family == "Other") "Computer" else device.family),
-                  td(parts(os.family.some, os.major)),
-                  td(parts(userAgent.family.some, userAgent.major)),
+                  td(title := ua.value.value)(
+                    if (parsed.device.family == "Other") "Computer" else parsed.device.family
+                  ),
+                  td(parts(parsed.os.family.some, parsed.os.major)),
+                  td(parts(parsed.userAgent.family.some, parsed.userAgent.major)),
                   td(dataSort := ua.date.getMillis)(momentFromNowServer(ua.date)),
-                  td(
-                    if (ua.value.app) "APP"
-                    else if (ua.value.mobile) "MOB"
-                    else ""
-                  )
+                  td(ua.value.client.toString)
                 )
               }
           )
@@ -683,6 +697,7 @@ object mod {
               th(pluralize("IP", logins.prints.size)),
               sortNumberTh("Alts"),
               th,
+              th("Client"),
               sortNumberTh("Date"),
               canIpBan option sortNumberTh
             )
@@ -694,6 +709,7 @@ object mod {
                 td(a(href := routes.Mod.singleIp(renderedIp))(renderedIp)),
                 td(dataSort := ip.alts.score)(altMarks(ip.alts)),
                 td(ip.proxy option span(cls := "proxy")("PROXY")),
+                td(ip.clients.toList.map(_.toString).sorted mkString ", "),
                 td(dataSort := ip.ip.date.getMillis)(momentFromNowServer(ip.ip.date)),
                 canIpBan option td(dataSort := (9999 - ip.alts.cleans))(
                   button(
@@ -715,6 +731,7 @@ object mod {
             tr(
               th(pluralize("Print", logins.prints.size)),
               sortNumberTh("Alts"),
+              th("Client"),
               sortNumberTh("Date"),
               canFpBan option sortNumberTh
             )
@@ -724,6 +741,7 @@ object mod {
               tr(cls := fp.banned option "blocked")(
                 td(a(href := routes.Mod.print(fp.fp.value.value))(fp.fp.value)),
                 td(dataSort := fp.alts.score)(altMarks(fp.alts)),
+                td(fp.client.toString),
                 td(dataSort := fp.fp.date.getMillis)(momentFromNowServer(fp.fp.date)),
                 canFpBan option td(dataSort := (9999 - fp.alts.cleans))(
                   button(

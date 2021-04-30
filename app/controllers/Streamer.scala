@@ -4,6 +4,7 @@ import play.api.mvc._
 import views._
 
 import lila.api.Context
+import play.api.libs.json._
 import lila.app._
 import lila.streamer.{ Streamer => StreamerModel, StreamerForm }
 
@@ -26,6 +27,28 @@ final class Streamer(
         } yield Ok(html.streamer.index(live, pager, requests))
       }
     }
+
+  def featured = Action.async { implicit req =>
+    env.streamer.liveStreamApi.all
+      .map { streams =>
+        val max      = env.streamer.homepageMaxSetting.get()
+        val featured = streams.homepage(max, req, none) withTitles env.user.lightUserApi
+        JsonOk {
+          featured.live.streams.map { s =>
+            Json.obj(
+              "url"    -> routes.Streamer.redirect(s.streamer.id.value).absoluteURL(),
+              "status" -> s.status,
+              "user" -> Json
+                .obj(
+                  "id"   -> s.streamer.userId,
+                  "name" -> s.streamer.name.value
+                )
+                .add("title" -> featured.titles.get(s.streamer.userId))
+            )
+          }
+        }
+      }
+  }
 
   def live =
     apiC.ApiRequest { _ =>
@@ -143,11 +166,11 @@ final class Streamer(
     }
 
   def pictureApply =
-    AuthBody(parse.multipartFormData) { implicit ctx => _ =>
+    AuthBody(parse.multipartFormData) { implicit ctx => me =>
       AsStreamer { s =>
         ctx.body.body.file("picture") match {
           case Some(pic) =>
-            api.uploadPicture(s.streamer, pic) recover { case e: Exception =>
+            api.uploadPicture(s.streamer, pic, me) recover { case e: Exception =>
               BadRequest(html.streamer.picture(s, e.getMessage.some))
             } inject Redirect(routes.Streamer.edit)
           case None => fuccess(Redirect(routes.Streamer.edit))

@@ -115,7 +115,7 @@ export default class Setup {
   private hookToPoolMember = (color: string, form: HTMLFormElement) => {
     const data = Array.from(new FormData(form).entries());
     const hash: any = {};
-    for (let i in data) hash[data[i][0]] = data[i][1];
+    for (const i in data) hash[data[i][0]] = data[i][1];
     const valid = color == 'random' && hash.variant == 1 && hash.mode == 1 && hash.timeMode == 1,
       id = parseFloat(hash.time) + '+' + parseInt(hash.increment);
     return valid && this.root.pools.find(p => p.id === id)
@@ -137,7 +137,7 @@ export default class Setup {
       $variantSelect = $form.find('#sf_variant'),
       $fenPosition = $form.find('.fen_position'),
       $fenInput = $fenPosition.find('input'),
-      forceFormPosition = !!$fenInput.val(),
+      forceFromPosition = !!$fenInput.val(),
       $timeInput = $form.find('.time_choice [name=time]'),
       $incrementInput = $form.find('.increment_choice [name=increment]'),
       $daysInput = $form.find('.days_choice [name=days]'),
@@ -151,8 +151,10 @@ export default class Setup {
           rated = $rated.prop('checked'),
           limit = parseFloat($timeInput.val() as string),
           inc = parseFloat($incrementInput.val() as string),
-          // no rated variants with less than 30s on the clock
-          cantBeRated = variantId != '1' && (timeMode != '1' || (limit < 0.5 && inc == 0) || (limit == 0 && inc < 2));
+          // no rated variants with less than 30s on the clock and no rated unlimited in the lobby
+          cantBeRated =
+            (typ === 'hook' && timeMode === '0') ||
+            (variantId != '1' && (timeMode != '1' || (limit < 0.5 && inc == 0) || (limit == 0 && inc < 2)));
         if (cantBeRated && rated) {
           $casual.trigger('click');
           return toggleButtons();
@@ -174,6 +176,7 @@ export default class Setup {
     if (c) {
       Object.keys(c).forEach(k => {
         $form.find(`[name="${k}"]`).each(function (this: HTMLInputElement) {
+          if (k === 'timeMode' && this.value !== '1') return;
           if (this.type == 'checkbox') this.checked = true;
           else if (this.type == 'radio') this.checked = this.value == c[k];
           else if (k != 'fen' || !this.value) this.value = c[k];
@@ -183,7 +186,7 @@ export default class Setup {
 
     const showRating = () => {
       const timeMode = $timeModeSelect.val();
-      let key: string = 'correspondence';
+      let key = 'correspondence';
       switch ($variantSelect.val()) {
         case '1':
         case '3':
@@ -249,7 +252,6 @@ export default class Setup {
         modal.close();
         if (poolMember) {
           this.root.enterPool(poolMember);
-          this.root.redraw();
         } else {
           this.root.setTab($timeModeSelect.val() === '1' ? 'real_time' : 'seeks');
           xhr.text($form.attr('action')!.replace(/sri-placeholder/, lichess.sri), {
@@ -261,6 +263,7 @@ export default class Setup {
             })(),
           });
         }
+        this.root.redraw();
         return false;
       };
       $submits
@@ -315,7 +318,7 @@ export default class Setup {
         });
       });
       $daysInput.each(function (this: HTMLInputElement) {
-        var $input = $(this),
+        const $input = $(this),
           $value = $input.siblings('span'),
           $range = $input.siblings('.range');
         $value.text($input.val() as string);
@@ -370,7 +373,7 @@ export default class Setup {
     }
     $timeModeSelect
       .on('change', function (this: HTMLElement) {
-        var timeMode = $(this).val();
+        const timeMode = $(this).val();
         $form.find('.time_choice, .increment_choice').toggle(timeMode == '1');
         $form.find('.days_choice').toggle(timeMode == '2');
         toggleButtons();
@@ -378,11 +381,11 @@ export default class Setup {
       })
       .trigger('change');
 
-    var validateFen = debounce(() => {
+    const validateFen = debounce(() => {
       $fenInput.removeClass('success failure');
-      var fen = $fenInput.val() as string;
+      const fen = $fenInput.val() as string;
       if (fen) {
-        var [path, params] = $fenInput.parent().data('validate-url').split('?'); // Separate "strict=1" for AI match
+        const [path, params] = $fenInput.parent().data('validate-url').split('?'); // Separate "strict=1" for AI match
         xhr.text(xhr.url(path, { fen }) + (params ? `&${params}` : '')).then(
           data => {
             $fenInput.addClass('success');
@@ -403,10 +406,10 @@ export default class Setup {
     }, 200);
     $fenInput.on('keyup', validateFen);
 
-    if (forceFormPosition) $variantSelect.val('' + 3);
+    if (forceFromPosition) $variantSelect.val('3');
     $variantSelect
       .on('change', function (this: HTMLElement) {
-        var isFen = $(this).val() == '3';
+        const isFen = $(this).val() == '3';
         $fenPosition.toggle(isFen);
         $modeChoicesWrap.toggle(!isFen);
         if (isFen) {
@@ -421,7 +424,7 @@ export default class Setup {
     $modeChoices.on('change', save);
 
     $form.find('div.level').each(function (this: HTMLElement) {
-      var $infos = $(this).find('.ai_info > div');
+      const $infos = $(this).find('.ai_info > div');
       $(this)
         .find('label')
         .on('mouseenter', function (this: HTMLElement) {
@@ -433,7 +436,7 @@ export default class Setup {
       $(this)
         .find('#config_level')
         .on('mouseleave', function (this: HTMLElement) {
-          var level = $(this).find('input:checked').val();
+          const level = $(this).find('input:checked').val();
           $infos
             .hide()
             .filter('.sf_level_' + level)

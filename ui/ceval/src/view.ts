@@ -1,7 +1,7 @@
 import * as winningChances from './winningChances';
 import { defined } from 'common';
 import { Eval, CevalCtrl, ParentCtrl, NodeEvals } from './types';
-import { h } from 'snabbdom';
+import { h, VNode } from 'snabbdom';
 import { Position } from 'chessops/chess';
 import { lichessVariantRules } from 'chessops/compat';
 import { makeSanAndPlay } from 'chessops/san';
@@ -9,7 +9,6 @@ import { opposite, parseUci } from 'chessops/util';
 import { parseFen, makeBoardFen } from 'chessops/fen';
 import { renderEval } from './util';
 import { setupPosition } from 'chessops/variant';
-import { VNode } from 'snabbdom/vnode';
 
 let gaugeLast = 0;
 const gaugeTicks: VNode[] = [...Array(8).keys()].map(i =>
@@ -115,7 +114,7 @@ export function getBestEval(evs: NodeEvals): Eval | undefined {
   if (!serverEv) return localEv;
   if (!localEv) return serverEv;
 
-  // Prefer localEv if it exeeds fishnet node limit or finds a better mate.
+  // Prefer localEv if it exceeds fishnet node limit or finds a better mate.
   if (
     localEv.nodes > serverNodes ||
     (typeof localEv.mate !== 'undefined' &&

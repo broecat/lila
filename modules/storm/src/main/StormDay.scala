@@ -1,7 +1,5 @@
 package lila.storm
 
-import org.joda.time.DateTime
-import org.joda.time.Days
 import scala.concurrent.ExecutionContext
 
 import lila.common.Bus
@@ -67,7 +65,7 @@ final class StormDayApi(coll: Coll, highApi: StormHighApi, userRepo: UserRepo, s
     lila.mon.storm.run.score(user.isDefined).record(data.score).unit
     user ?? { u =>
       if (sign.check(u, ~data.signed)) {
-        Bus.publish(lila.hub.actorApi.storm.StormRun(u.id, data.score), "stormRun")
+        Bus.publish(lila.hub.actorApi.puzzle.StormRun(u.id, data.score), "stormRun")
         highApi get u.id flatMap { prevHigh =>
           val todayId = Id today u.id
           coll
@@ -79,8 +77,8 @@ final class StormDayApi(coll: Coll, highApi: StormHighApi, userRepo: UserRepo, s
               coll.update.one($id(day._id), day, upsert = true)
             }
             .flatMap { _ =>
-              val (high, newHigh) = highApi.update(u.id, prevHigh, data.score)
-              userRepo.addStormRun(u.id, high.allTime.some.filter(prevHigh.allTime <)) inject newHigh
+              val high = highApi.update(u.id, prevHigh, data.score)
+              userRepo.addStormRun(u.id, data.score) inject high
             }
         }
       } else {
@@ -111,9 +109,6 @@ final class StormDayApi(coll: Coll, highApi: StormHighApi, userRepo: UserRepo, s
       page,
       MaxPerPage(30)
     )
-
-  def eraseAllFor(user: User) =
-    coll.delete.one(idRegexFor(user.id)).void
 
   def apiHistory(userId: User.ID, days: Int): Fu[List[StormDay]] =
     coll

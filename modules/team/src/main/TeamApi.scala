@@ -34,6 +34,8 @@ final class TeamApi(
 
   def team(id: Team.ID) = teamRepo byId id
 
+  def teamEnabled(id: Team.ID) = teamRepo enabled id
+
   def leaderTeam(id: Team.ID) = teamRepo.coll.byId[LeaderTeam](id, $doc("name" -> true))
 
   def lightsByLeader = teamRepo.lightsByLeader _
@@ -55,7 +57,9 @@ final class TeamApi(
         description = s.description,
         descPrivate = s.descPrivate,
         open = s.isOpen,
-        createdBy = me
+        createdBy = me,
+        hideMembers = Some(s.hideMembers),
+        hideForum = Some(s.hideForum)
       )
       teamRepo.coll.insert.one(team) >>
         memberRepo.add(team.id, me.id) >>- {
@@ -77,7 +81,9 @@ final class TeamApi(
         description = e.description,
         descPrivate = e.descPrivate,
         open = e.isOpen,
-        chat = e.chat
+        chat = e.chat,
+        hideMembers = Some(e.hideMembers),
+        hideForum = Some(e.hideForum)
       ) pipe { team =>
         teamRepo.coll.update.one($id(team.id), team).void >>
           !team.leaders(me.id) ?? {
@@ -139,7 +145,7 @@ final class TeamApi(
 
   def requestable(teamId: Team.ID, user: User): Fu[Option[Team]] =
     for {
-      teamOption <- teamRepo.coll.byId[Team](teamId)
+      teamOption <- teamEnabled(teamId)
       able       <- teamOption.??(requestable(_, user))
     } yield teamOption ifTrue able
 
@@ -218,6 +224,7 @@ final class TeamApi(
   def quitAll(userId: User.ID): Fu[List[Team.ID]] =
     cached.teamIdsList(userId) flatMap { teamIds =>
       memberRepo.removeByUser(userId) >>
+        requestRepo.removeByUser(userId) >>
         teamIds.map { teamRepo.incMembers(_, -1) }.sequenceFu.void >>-
         cached.invalidateTeamIds(userId) inject teamIds
     }

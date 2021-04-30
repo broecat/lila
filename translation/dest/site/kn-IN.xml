@@ -95,7 +95,7 @@
   <string name="winPreventedBy50MoveRule">೫೦-ನಡೆಗಳ ನಿಯಮದಿಂದ ಗೆಲುವು ತಪ್ಪಿದೆ</string>
   <string name="lossSavedBy50MoveRule">೫೦-ನಡೆಗಳ ನಿಯಮದಿಂದ ಸೋಲು ತಪ್ಪಿದೆ</string>
   <string name="allSet">ಸಿದ್ಧವಾಗಿದೆ!</string>
-  <string name="importPgn">PNG ಆಮದು</string>
+  <string name="importPgn">PGN ಆಮದು</string>
   <string name="delete">ಅಳಿಸಿ</string>
   <string name="deleteThisImportedGame">ಈ ಪ್ರಮುಖ ಆಟವನ್ನು ಅಳಿಸುವುದೇ?</string>
   <string name="replayMode">ಪ್ರತ್ಯುತ್ತರ ಮೋಡ್</string>
@@ -111,11 +111,8 @@
   <string name="infiniteAnalysis">ಅನಂತ ವಿಶ್ಲೇಷಣೆ</string>
   <string name="removesTheDepthLimit">ಆಳ ನಿರ್ಬಂಧಿನೆ ತೆಗೆಯುತ್ತದೆ, ಕಂಪ್ಯೂಟರ್ ಬಿಸಿಯಾಗಬಹುದು</string>
   <string name="blunder">ಪ್ರಮಾದ</string>
-  <string name="blunders">ಪ್ರಮಾದಗಳು</string>
   <string name="mistake">ತಪ್ಪು</string>
-  <string name="mistakes">ತಪ್ಪುಗಳು</string>
   <string name="inaccuracy">ತಪ್ಪಾಗಿದೆ</string>
-  <string name="inaccuracies">ನಿಖರವಾಗಿಲ್ಲ</string>
   <string name="flipBoard">ಫ್ಲಿಪ್ ಬೋರ್ಡ್</string>
   <string name="threefoldRepetition">Threefold repetition</string>
   <string name="draw">ಡ್ರಾ</string>

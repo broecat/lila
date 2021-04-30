@@ -1,12 +1,9 @@
 import view from './view';
 
-import { init } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import klass from 'snabbdom/modules/class';
-import attributes from 'snabbdom/modules/attributes';
+import { init, VNode, classModule, attributesModule } from 'snabbdom';
 import dragscroll from 'dragscroll';
 
-const patch = init([klass, attributes]);
+const patch = init([classModule, attributesModule]);
 
 dragscroll; // required to include the dependency :( :( :(
 
@@ -15,12 +12,12 @@ export default function (env: any) {
 
   const element = document.querySelector('.tour-chart') as HTMLElement;
 
-  let vnode: VNode,
-    ctrl = {
-      data: () => env.data,
-      trans: lichess.trans(env.i18n),
-    };
+  const ctrl = {
+    data: () => env.data,
+    trans: lichess.trans(env.i18n),
+  };
 
+  let vnode: VNode;
   function redraw() {
     vnode = patch(vnode || element, view(ctrl));
   }

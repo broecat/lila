@@ -2,10 +2,9 @@ import config from '../config';
 import RacerCtrl from '../ctrl';
 import renderClock from 'puz/view/clock';
 import { bind } from 'puz/util';
-import { h } from 'snabbdom';
+import { h, VNode } from 'snabbdom';
 import { playModifiers, renderCombo } from 'puz/view/util';
 import { renderRace } from './race';
-import { VNode } from 'snabbdom/vnode';
 import { MaybeVNodes } from 'puz/interfaces';
 import { renderBoard } from './board';
 import { povMessage } from 'puz/run';
@@ -26,14 +25,17 @@ export default function (ctrl: RacerCtrl): VNode {
 const selectScreen = (ctrl: RacerCtrl): MaybeVNodes => {
   const noarg = ctrl.trans.noarg;
   switch (ctrl.status()) {
-    case 'pre':
+    case 'pre': {
       const povMsg = h('p.racer__pre__message__pov', ctrl.trans(povMessage(ctrl.run)));
       return ctrl.race.lobby
         ? [
             waitingToStart(noarg),
             h('div.racer__pre__message.racer__pre__message--with-skip', [
               h('div.racer__pre__message__text', [
-                h('p', ctrl.knowsSkip() ? noarg(ctrl.vm.startsAt ? 'getReady' : 'waitingForMorePlayers') : skipHelp()),
+                h(
+                  'p',
+                  ctrl.knowsSkip() ? noarg(ctrl.vm.startsAt ? 'getReady' : 'waitingForMorePlayers') : skipHelp(noarg)
+                ),
                 povMsg,
               ]),
               ctrl.knowsSkip() ? null : renderSkip(ctrl),
@@ -48,7 +50,8 @@ const selectScreen = (ctrl: RacerCtrl): MaybeVNodes => {
             ]),
             comboZone(ctrl),
           ];
-    case 'racing':
+    }
+    case 'racing': {
       const clock = renderClock(ctrl.run, ctrl.end, false);
       return ctrl.isPlayer()
         ? [playerScore(ctrl), h('div.puz-clock', [clock, renderSkip(ctrl)]), comboZone(ctrl)]
@@ -60,12 +63,14 @@ const selectScreen = (ctrl: RacerCtrl): MaybeVNodes => {
             ]),
             comboZone(ctrl),
           ];
-    case 'post':
+    }
+    case 'post': {
       const nextRace = ctrl.race.lobby ? lobbyNext(ctrl) : friendNext(ctrl);
       const raceComplete = h('h2', noarg('raceComplete'));
       return ctrl.isPlayer()
         ? [playerScore(ctrl), h('div.racer__post', [raceComplete, yourRank(ctrl), nextRace]), comboZone(ctrl)]
         : [spectating(noarg), h('div.racer__post', [raceComplete, nextRace]), comboZone(ctrl)];
+    }
   }
 };
 
@@ -77,14 +82,14 @@ const renderSkip = (ctrl: RacerCtrl) =>
         disabled: !ctrl.canSkip(),
       },
       attrs: {
-        title: 'Skip this move to preserve your combo! Only works once per race.',
+        title: ctrl.trans.noarg('skipExplanation'),
       },
       hook: bind('click', ctrl.skip),
     },
-    'skip'
+    ctrl.trans.noarg('skip')
   );
 
-const skipHelp = () => h('p', 'NEW! You can skip one move per race:');
+const skipHelp = (noarg: TransNoArg) => h('p', noarg('skipHelp'));
 
 const puzzleRacer = () => h('strong', 'Puzzle Racer');
 

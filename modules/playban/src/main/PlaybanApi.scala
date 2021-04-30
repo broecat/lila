@@ -12,11 +12,13 @@ import lila.user.{ User, UserRepo }
 
 import org.joda.time.DateTime
 import reactivemongo.api.ReadPreference
+import lila.user.NoteApi
 
 final class PlaybanApi(
     coll: Coll,
     feedback: PlaybanFeedback,
     userRepo: UserRepo,
+    noteApi: NoteApi,
     cacheApi: lila.memo.CacheApi,
     messenger: MsgApi
 )(implicit ec: scala.concurrent.ExecutionContext) {
@@ -42,7 +44,7 @@ final class PlaybanApi(
     }
 
   private def IfBlameable[A: ornicar.scalalib.Zero](game: Game)(f: => Fu[A]): Fu[A] =
-    Uptime.startedSinceMinutes(0) ?? {
+    Uptime.startedSinceMinutes(10) ?? {
       blameable(game) flatMap { _ ?? f }
     }
 
@@ -231,15 +233,23 @@ final class PlaybanApi(
     update match {
       case RageSit.Inc(delta) =>
         rageSitCache.put(record.userId, fuccess(record.rageSit))
-        (delta < 0) ?? {
-          if (record.rageSit.isTerrible) funit
-          else if (record.rageSit.isVeryBad) {
+        (delta < 0 && record.rageSit.isVeryBad) ?? {
+          messenger.postPreset(record.userId, MsgPreset.sittingAuto).void >>- {
             Bus.publish(
               lila.hub.actorApi.mod.AutoWarning(record.userId, MsgPreset.sittingAuto.name),
               "autoWarning"
             )
-            messenger.postPreset(record.userId, MsgPreset.sittingAuto).void
-          } else funit
+            if (record.isLethal)
+              userRepo
+                .byId(record.userId)
+                .flatMap {
+                  _ ?? { user =>
+                    noteApi.lichessWrite(user, "Closed for ragesit recidive") >>-
+                      Bus.publish(lila.hub.actorApi.playban.RageSitClose(user.id), "rageSitClose")
+                  }
+                }
+                .unit
+          }
         }
       case _ => funit
     }

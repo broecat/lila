@@ -1,6 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
-import { Classes } from 'snabbdom/modules/class';
+import { h, VNode, Classes } from 'snabbdom';
 import { defined } from 'common';
 import throttle from 'common/throttle';
 import { renderEval as normalizeEval } from 'ceval';
@@ -23,8 +21,8 @@ interface Glyph {
 }
 
 const autoScroll = throttle(150, (ctrl: Controller, el) => {
-  var cont = el.parentNode;
-  var target = el.querySelector('.active');
+  const cont = el.parentNode;
+  const target = el.querySelector('.active');
   if (!target) {
     cont.scrollTop = ctrl.vm.path === treePath.root ? 0 : 99999;
     return;

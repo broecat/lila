@@ -1,4 +1,4 @@
-import { VNode } from 'snabbdom/vnode';
+import { VNode } from 'snabbdom';
 
 export interface NotifyOpts {
   data?: NotifyData;
@@ -13,6 +13,7 @@ export interface NotifyOpts {
 export interface NotifyData {
   pager: Paginator<Notification>;
   unread: number;
+  i18n: I18nDict;
 }
 
 interface NotificationUser {

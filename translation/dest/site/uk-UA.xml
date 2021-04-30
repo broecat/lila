@@ -121,11 +121,8 @@
   <string name="infiniteAnalysis">Нескінченний аналіз</string>
   <string name="removesTheDepthLimit">Знімає обмеження на глибину аналізу - ваш комп’ютер стане теплішим</string>
   <string name="blunder">Груба помилка</string>
-  <string name="blunders">Грубі помилки</string>
   <string name="mistake">Помилка</string>
-  <string name="mistakes">Помилки</string>
   <string name="inaccuracy">Неточність</string>
-  <string name="inaccuracies">Неточності</string>
   <string name="moveTimes">Час на хід</string>
   <string name="flipBoard">Перевернути дошку</string>
   <string name="threefoldRepetition">Трикратне повторення</string>
@@ -312,7 +309,6 @@
     <item quantity="other">Додати %s секунд</item>
   </plurals>
   <string name="thisAccountViolatedTos">Цей обліковий запис порушив умови використання Lichess</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Цей гравець штучно збільшує/зменшує свій рейтинг</string>
   <string name="openingExplorerAndTablebase">Провідник дебютів &amp; ендшпілів</string>
   <string name="takeback">Повернення ходу</string>
   <string name="proposeATakeback">Запропонувати повернути хід</string>

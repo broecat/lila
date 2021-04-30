@@ -1,5 +1,4 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { User } from '../interfaces';
 import MsgCtrl from '../ctrl';
 import { bind } from './util';
@@ -65,7 +64,7 @@ function setupTextarea(area: HTMLTextAreaElement, contact: string, ctrl: MsgCtrl
 
   // hack to automatically resize the textarea based on content
   area.value = '';
-  let baseScrollHeight = area.scrollHeight;
+  const baseScrollHeight = area.scrollHeight;
   area.addEventListener(
     'input',
     throttle(500, () => {

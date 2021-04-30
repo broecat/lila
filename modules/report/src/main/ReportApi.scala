@@ -20,6 +20,7 @@ final class ReportApi(
     discordApi: lila.irc.DiscordApi,
     isOnline: lila.socket.IsOnline,
     cacheApi: lila.memo.CacheApi,
+    snoozer: lila.memo.Snoozer[Report.SnoozeKey],
     thresholds: Thresholds
 )(implicit
     ec: scala.concurrent.ExecutionContext,
@@ -148,7 +149,7 @@ final class ReportApi(
     getSuspect(userId) zip
       getLichessReporter zip
       findRecent(1, selectRecent(SuspectId(userId), Reason.Cheat)).map(_.flatMap(_.atoms.toList)) flatMap {
-        case Some(suspect) ~ reporter ~ atoms if atoms.forall(_.byHuman) =>
+        case ((Some(suspect), reporter), atoms) if atoms.forall(_.byHuman) =>
           lila.mon.cheat.autoReport.increment()
           create(
             Candidate(
@@ -163,7 +164,7 @@ final class ReportApi(
 
   def autoCheatDetectedReport(userId: User.ID, cheatedGames: Int): Funit =
     userRepo.byId(userId) zip getLichessReporter flatMap {
-      case Some(user) ~ reporter if !user.marks.engine =>
+      case (Some(user), reporter) if !user.marks.engine =>
         lila.mon.cheat.autoReport.increment()
         create(
           Candidate(
@@ -202,7 +203,7 @@ final class ReportApi(
             userRepo.byId(userId) zip
               getLichessReporter zip
               findRecent(1, selectRecent(SuspectId(userId), Reason.Playbans)) flatMap {
-                case Some(abuser) ~ reporter ~ past if past.isEmpty =>
+                case ((Some(abuser), reporter), past) if past.isEmpty =>
                   create(
                     Candidate(
                       reporter = reporter,
@@ -242,7 +243,7 @@ final class ReportApi(
   def autoBoostReport(winnerId: User.ID, loserId: User.ID): Funit =
     securityApi.shareAnIpOrFp(winnerId, loserId) zip
       userRepo.pair(winnerId, loserId) zip getLichessReporter flatMap {
-        case isSame ~ Some((winner, loser)) ~ reporter if !winner.lame && !loser.lame =>
+        case ((isSame, Some((winner, loser))), reporter) if !winner.lame && !loser.lame =>
           val loginsText =
             if (isSame) "Found matching IP/print"
             else "No IP/print match found"
@@ -259,7 +260,7 @@ final class ReportApi(
 
   def autoSandbagReport(winnerIds: List[User.ID], loserId: User.ID): Funit =
     userRepo.byId(loserId) zip getLichessReporter flatMap {
-      case Some(loser) ~ reporter if !loser.lame =>
+      case (Some(loser), reporter) if !loser.lame =>
         create(
           Candidate(
             reporter = reporter,
@@ -322,7 +323,7 @@ final class ReportApi(
             reason = Reason.Comm,
             text = text
           ),
-          score => score atLeast 60
+          score => score atLeast 40
         )
       case _ => funit
     }
@@ -343,18 +344,18 @@ final class ReportApi(
       $doc("room" -> r)
     }
 
-  private def selectOpenInRoom(room: Option[Room]) =
-    $doc("open" -> true) ++ roomSelect(room)
-
-  private def selectOpenAvailableInRoom(room: Option[Room], exceptIds: Iterable[Report.ID]) =
-    selectOpenInRoom(room) ++ $doc("inquiry" $exists false) ++ {
+  private def selectOpenInRoom(room: Option[Room], exceptIds: Iterable[Report.ID]) =
+    $doc("open" -> true) ++ roomSelect(room) ++ {
       exceptIds.nonEmpty ?? $doc("_id" $nin exceptIds)
     }
+
+  private def selectOpenAvailableInRoom(room: Option[Room], exceptIds: Iterable[Report.ID]) =
+    selectOpenInRoom(room, exceptIds) ++ $doc("inquiry" $exists false)
 
   private val maxScoreCache = cacheApi.unit[Room.Scores] {
     _.refreshAfterWrite(5 minutes)
       .buildAsyncFuture { _ =>
-        Room.allButXfiles
+        Room.allButXfilesAndPrint
           .map { room =>
             coll // hits the best_open partial index
               .primitiveOne[Float](
@@ -438,9 +439,9 @@ final class ReportApi(
       ReadPreference.secondaryPreferred
     ) dmap (_ filterNot ReporterId.lichess.==)
 
-  def openAndRecentWithFilter(nb: Int, room: Option[Room]): Fu[List[Report.WithSuspect]] =
+  def openAndRecentWithFilter(mod: Mod, nb: Int, room: Option[Room]): Fu[List[Report.WithSuspect]] =
     for {
-      opens <- findBest(nb, selectOpenInRoom(room))
+      opens <- findBest(nb, selectOpenInRoom(room, snoozedIdsOf(mod)))
       nbClosed = nb - opens.size
       closed <-
         if (room.has(Room.Xfiles) || nbClosed < 1) fuccess(Nil)
@@ -449,7 +450,9 @@ final class ReportApi(
     } yield withNotes
 
   private def findNext(mod: Mod, room: Room): Fu[Option[Report]] =
-    findBest(1, selectOpenAvailableInRoom(room.some, snoozer snoozedIdsOf mod)).map(_.headOption)
+    findBest(1, selectOpenAvailableInRoom(room.some, snoozedIdsOf(mod))).map(_.headOption)
+
+  private def snoozedIdsOf(mod: Mod) = snoozer snoozedKeysOf mod.user.id map (_.reportId)
 
   private def addSuspectsAndNotes(reports: List[Report]): Fu[List[Report.WithSuspect]] =
     userRepo byIdsSecondary reports.map(_.user).distinct map { users =>
@@ -465,27 +468,10 @@ final class ReportApi(
   def snooze(mod: Mod, reportId: Report.ID, duration: String): Fu[Option[Report]] =
     byId(reportId) flatMap {
       _ ?? { report =>
-        Snooze.Duration(duration) foreach { snoozer.set(mod, report.id, _) }
+        snoozer.set(Report.SnoozeKey(mod.user.id, reportId), duration)
         inquiries.toggleNext(mod, report.room)
       }
     }
-
-  private object snoozer {
-    import Snooze._
-    private val store = cacheApi.notLoadingSync[SnoozeKey, Duration](256, "report.snooze")(
-      _.expireAfter[SnoozeKey, Duration](
-        create = (_, duration) => duration.value,
-        update = (_, duration, _) => duration.value,
-        read = (_, _, current) => current
-      ).build()
-    )
-
-    def set(mod: Mod, reportId: Report.ID, duration: Duration): Unit =
-      store.put(SnoozeKey(mod.id, reportId), duration)
-
-    def snoozedIdsOf(mod: Mod): Iterable[Report.ID] =
-      store.asMap().keys.collect { case SnoozeKey(m, r) if m == mod.id => r }
-  }
 
   object accuracy {
 

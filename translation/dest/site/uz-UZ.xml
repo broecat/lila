@@ -115,11 +115,8 @@
   <string name="infiniteAnalysis">Cheksiz vaqtli tahlil</string>
   <string name="removesTheDepthLimit">Chuqurlik cheagarasini olib tashlaydi va kompyuteringiz issiq tutadi</string>
   <string name="blunder">Qo\'pol xato</string>
-  <string name="blunders">Qo\'pol xatolar</string>
   <string name="mistake">Xato</string>
-  <string name="mistakes">Xatolar</string>
   <string name="inaccuracy">Noaniqlik</string>
-  <string name="inaccuracies">Noaniqlik</string>
   <string name="moveTimes">Yurishlar soni</string>
   <string name="flipBoard">Taxtani o\'girmoq</string>
   <string name="threefoldRepetition">Uch marta takrorlanish</string>
@@ -278,7 +275,6 @@
     <item quantity="other">%s sekundlar berish</item>
   </plurals>
   <string name="thisAccountViolatedTos">Ushbu hisob Lichess xizmatlari shartlarini buzgan</string>
-  <string name="thisPlayerArtificiallyIncreasesTheirRating">Ushbu o\'yinchi o\'zinining reytingini suniy holda oshirayabdi/kamaytirayabdi</string>
   <string name="openingExplorerAndTablebase">Sharhni ochish</string>
   <string name="takeback">Ortga yurish</string>
   <string name="proposeATakeback">Ortga qaytishni taklif qilish</string>
@@ -656,7 +652,7 @@
   <string name="ifYouDoNotSeeTheEmailCheckOtherPlaces">Agar siz emailni ko\'rmasangiz, boshqa kataloglaringizni qarab ko\'ring, masalan, spam, ijtimoiy va boshqa shularga o\'xshashlarni.</string>
   <string name="weHaveSentYouAnEmailTo">Biz %s ga hat yubordik. Parolni qayta tiklash uchun emaildagi linkni bosing.</string>
   <string name="byRegisteringYouAgreeToBeBoundByOur">Ro\'yhatdan o\'tib bizning %s shartlarimizga roziligingizni bildirasiz.</string>
-  <string name="readAboutOur">Biz haqimizda oʻqing: %s. </string>
+  <string name="readAboutOur">Biz haqimizda oʻqing: %s.</string>
   <string name="networkLagBetweenYouAndLichess">Lichess va sizning o\'rtangizdagi tarmoq kechikishi</string>
   <string name="timeToProcessAMoveOnLichessServer">Lichess serverida yurishni amalga oshirish uchun vaqt</string>
   <string name="downloadAnnotated">Annotatsiya holatda yuklash</string>

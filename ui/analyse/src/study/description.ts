@@ -1,12 +1,11 @@
-import { h } from 'snabbdom';
-import { VNode } from 'snabbdom/vnode';
+import { h, VNode } from 'snabbdom';
 import { StudyCtrl } from './interfaces';
 import { bind, richHTML, onInsert } from '../util';
 
-export type Save = (string) => void;
+export type Save = (t: string) => void;
 
 export class DescriptionCtrl {
-  edit: boolean = false;
+  edit = false;
 
   constructor(public text: string | undefined, readonly doSave: Save, readonly redraw: () => void) {}
 

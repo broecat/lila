@@ -1,48 +1,88 @@
 import { initial as initialBoardFen } from 'chessground/fen';
 import { ops as treeOps } from 'tree';
 import AnalyseCtrl from './ctrl';
+import { CachedEval, EvalGetData, EvalPutData, ServerEvalData } from './interfaces';
+import { AnaDests, AnaDrop, AnaMove, ChapterData, EditChapterData } from './study/interfaces';
+import { FormData as StudyFormData } from './study/studyForm';
 
-type DestCache = {
-  [fen: string]: DestCacheEntry;
-};
-type DestCacheEntry = {
-  path: string;
-  dests: string;
-};
-
-interface Handlers {
-  [key: string]: any; // TODO
+interface DestsCache {
+  [fen: string]: AnaDests;
 }
 
-// TODO: Split into request types
-export interface Req {
-  ch?: string; // TODO: needs to be defined in studies before sending
-  sticky?: boolean;
-  write?: boolean;
+interface AnaDestsReq {
+  fen: Fen;
   path: string;
+  ch?: string;
   variant?: VariantKey;
-  fen?: string;
-  shapes?: Tree.Shape[];
-  jumpTo?: Tree.Path;
-  toMainline?: boolean;
-  force?: boolean;
 }
+
+interface MoveOpts {
+  write?: false;
+  sticky?: false;
+}
+
+export interface ReqPosition {
+  ch: string;
+  path: string;
+}
+
+export type StudySocketSendParams =
+  | [t: 'setPath', d: ReqPosition]
+  | [t: 'deleteNode', d: ReqPosition & { jumpTo: string }]
+  | [t: 'promote', d: ReqPosition & { toMainline: boolean }]
+  | [t: 'forceVariation', d: ReqPosition & { force: boolean }]
+  | [t: 'shapes', d: ReqPosition & { shapes: Tree.Shape[] }]
+  | [t: 'setComment', d: ReqPosition & { text: string }]
+  | [t: 'deleteComment', d: ReqPosition & { id: string }]
+  | [t: 'setGamebook', d: ReqPosition & { gamebook: { deviation?: string; hint?: string } }]
+  | [t: 'toggleGlyph', d: ReqPosition & { id: number }]
+  | [t: 'explorerGame', d: ReqPosition & { gameId: string; insert: boolean }]
+  | [t: 'setChapter', chapterId: string]
+  | [t: 'setRole', d: { userId: string; role: string }]
+  | [t: 'addChapter', d: ChapterData & { sticky?: boolean }]
+  | [t: 'editChapter', d: EditChapterData]
+  | [t: 'descStudy', desc: string]
+  | [t: 'descChapter', d: { id: string; desc: string }]
+  | [t: 'deleteChapter', chapterId: string]
+  | [t: 'clearAnnotations', chapterId: string]
+  | [t: 'sortChapters', chapterIds: string[]]
+  | [t: 'setTag', d: { chapterId: string; name: string; value: string }]
+  | [t: 'anaMove', d: AnaMove & MoveOpts]
+  | [t: 'anaDrop', d: AnaDrop & MoveOpts]
+  | [t: 'anaDests', d: AnaDestsReq]
+  | [t: 'like', d: { liked: boolean }]
+  | [t: 'kick', username: string]
+  | [t: 'editStudy', d: StudyFormData]
+  | [t: 'setTopics', topics: string[]]
+  | [t: 'requestAnalysis', chapterId: string]
+  | [t: 'invite', username: string]
+  | [t: 'relaySync', sync: boolean]
+  | [t: 'leave'];
+
+export type EvalCacheSocketParams = [t: 'evalPut', d: EvalPutData] | [t: 'evalGet', d: EvalGetData];
+
+export type AnalyseSocketSendParams =
+  | StudySocketSendParams
+  | EvalCacheSocketParams
+  | [t: 'startWatching', gameId: string];
+
+export type StudySocketSend = (...[d, t]: StudySocketSendParams) => void;
+export type AnalyseSocketSend = (...[d, t]: AnalyseSocketSendParams) => void;
 
 export interface Socket {
-  send: SocketSend;
+  send: AnalyseSocketSend;
   receive(type: string, data: any): boolean;
-  sendAnaMove(req: Req): void;
-  sendAnaDrop(req: Req): void;
-  sendAnaDests(req: Req): void;
-  sendForecasts(req: Req): void;
+  sendAnaMove(d: AnaMove): void;
+  sendAnaDrop(d: AnaDrop): void;
+  sendAnaDests(d: AnaDestsReq): void;
   clearCache(): void;
 }
 
-export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
+export function make(send: AnalyseSocketSend, ctrl: AnalyseCtrl): Socket {
   let anaMoveTimeout: number | undefined;
   let anaDestsTimeout: number | undefined;
 
-  let anaDestsCache: DestCache = {};
+  let anaDestsCache: DestsCache = {};
 
   function clearCache() {
     anaDestsCache =
@@ -68,8 +108,8 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
     return undefined;
   }
 
-  function addStudyData(req: Req, isWrite = false): void {
-    var c = currentChapterId();
+  function addStudyData(req: { ch?: string } & MoveOpts, isWrite = false) {
+    const c = currentChapterId();
     if (c) {
       req.ch = c;
       if (isWrite) {
@@ -80,8 +120,8 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
     }
   }
 
-  const handlers: Handlers = {
-    node(data) {
+  const handlers = {
+    node(data: { ch?: string; node: Tree.Node; path: string }) {
       clearTimeout(anaMoveTimeout);
       // no strict equality here!
       if (data.ch == currentChapterId()) ctrl.addNode(data.node, data.path);
@@ -91,35 +131,35 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
       clearTimeout(anaMoveTimeout);
       ctrl.reset();
     },
-    dests(data) {
+    dests(data: AnaDests) {
       clearTimeout(anaDestsTimeout);
       if (!data.ch || data.ch === currentChapterId()) {
         anaDestsCache[data.path] = data;
         ctrl.addDests(data.dests, data.path);
       } else console.log('socket handler node got wrong chapter id', data);
     },
-    destsFailure(data) {
+    destsFailure(data: any) {
       console.log(data);
       clearTimeout(anaDestsTimeout);
     },
-    fen(e) {
+    fen(e: GameUpdate) {
       if (ctrl.forecast && e.id === ctrl.data.game.id && treeOps.last(ctrl.mainline)!.fen.indexOf(e.fen) !== 0) {
         ctrl.forecast.reloadToLastPly();
       }
     },
-    analysisProgress(data) {
+    analysisProgress(data: ServerEvalData) {
       ctrl.mergeAnalysisData(data);
     },
-    evalHit(e) {
+    evalHit(e: CachedEval) {
       ctrl.evalCache.onCloudEval(e);
     },
   };
 
-  function withoutStandardVariant(obj) {
+  function withoutStandardVariant(obj: { variant?: VariantKey }) {
     if (obj.variant === 'standard') delete obj.variant;
   }
 
-  function sendAnaDests(req: Req) {
+  function sendAnaDests(req: AnaDestsReq) {
     clearTimeout(anaDestsTimeout);
     if (anaDestsCache[req.path])
       setTimeout(function () {
@@ -136,7 +176,7 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
     }
   }
 
-  function sendAnaMove(req: Req) {
+  function sendAnaMove(req: AnaMove) {
     clearTimeout(anaMoveTimeout);
     withoutStandardVariant(req);
     addStudyData(req, true);
@@ -144,7 +184,7 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
     anaMoveTimeout = setTimeout(() => sendAnaMove(req), 3000);
   }
 
-  function sendAnaDrop(req: Req) {
+  function sendAnaDrop(req: AnaDrop) {
     clearTimeout(anaMoveTimeout);
     withoutStandardVariant(req);
     addStudyData(req, true);
@@ -153,17 +193,17 @@ export function make(send: SocketSend, ctrl: AnalyseCtrl): Socket {
   }
 
   return {
-    receive(type: string, data: any): boolean {
-      const handler = handlers[type];
-      if (handler) handler(data);
+    receive(type, data) {
+      const handler = (handlers as SocketHandlers)[type];
+      if (handler) {
+        handler(data);
+        return true;
+      }
       return !!ctrl.study && ctrl.study.socketHandler(type, data);
     },
     sendAnaMove,
     sendAnaDrop,
     sendAnaDests,
-    sendForecasts(req) {
-      send('forecasts', req);
-    },
     clearCache,
     send,
   };
