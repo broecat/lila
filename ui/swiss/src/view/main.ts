@@ -36,13 +36,9 @@ export default function (ctrl: SwissCtrl) {
       playerInfo(ctrl) || stats(ctrl) || boards.top(d.boards),
       h('div.swiss__main', [h('div.box.swiss__main-' + d.status, content), boards.many(d.boards)]),
       ctrl.opts.chat
-        ? h('div.chat__members.none', [
-            h('span.number', '\xa0'),
-            ' ',
-            ctrl.trans.noarg('spectators'),
-            ' ',
-            h('span.list'),
-          ])
+        ? h('div.chat__members.none', {
+            hook: onInsert(lichess.watchers),
+          })
         : null,
     ]
   );
@@ -285,7 +281,18 @@ function stats(ctrl: SwissCtrl): VNode | undefined {
                 download: true,
               },
             },
-            'Download results'
+            'Download results as NDJSON'
+          ),
+          h(
+            'a.text',
+            {
+              attrs: {
+                'data-icon': 'x',
+                href: `/api/swiss/${ctrl.data.id}/results?as=csv`,
+                download: true,
+              },
+            },
+            'Download results as CSV'
           ),
           h('br'),
           h(

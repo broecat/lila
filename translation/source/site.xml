@@ -260,7 +260,6 @@
   <string name="send">Send</string>
   <string name="incrementInSeconds">Increment in seconds</string>
   <string name="freeOnlineChess">Free Online Chess</string>
-  <string name="spectators">Spectators:</string>
   <plurals name="nbRated">
     <item quantity="one">%s rated</item>
     <item quantity="other">%s rated</item>
@@ -332,7 +331,7 @@
   <string name="yourTopWeeklyPerfRatingIsTooHigh">Your top weekly %1$s rating (%2$s) is too high</string>
   <string name="yourPerfRatingIsTooLow">Your %1$s rating (%2$s) is too low</string>
   <string name="ratedMoreThanInPerf">Rated ≥ %1$s in %2$s</string>
-  <string name="ratedLessThanInPerf">Rated ≤ %1$s in %2$s</string>
+  <string name="ratedLessThanInPerf">Rated ≤ %1$s in %2$s this week</string>
   <string name="mustBeInTeam">Must be in team %s</string>
   <string name="youAreNotInTeam">You are not in the team %s</string>
   <string name="backToGame">Back to game</string>
@@ -837,7 +836,7 @@ computer analysis, game chat and shareable URL.</string>
   <string name="puzzleDesc">Chess tactics trainer</string>
   <string name="important">Important</string>
   <string name="yourQuestionMayHaveBeenAnswered">Your question may already have an answer %1$s</string>
-  <string name="inTheFAQ">in the F.A.Q.</string>
+  <string name="inTheFAQ">in the FAQ</string>
   <string name="toReportSomeoneForCheatingOrBadBehavior">To report a user for cheating or bad behaviour, %1$s</string>
   <string name="useTheReportForm">use the report form</string>
   <string name="toRequestSupport">To request support, %1$s</string>
@@ -848,9 +847,9 @@ computer analysis, game chat and shareable URL.</string>
   <string name="youCannotPostYetPlaySomeGames">You can't post in the forums yet. Play some games!</string>
   <string name="subscribe">Subscribe</string>
   <string name="unsubscribe">Unsubscribe</string>
-  <string name="mentionedYouInX"> mentioned you in "%1$s".</string>
-  <string name="xMentionedYouInY"> %1$s mentioned you in "%2$s".</string>
-  <string name="invitedYouToX"> invited you to "%1$s".</string>
+  <string name="mentionedYouInX">mentioned you in "%1$s".</string>
+  <string name="xMentionedYouInY">%1$s mentioned you in "%2$s".</string>
+  <string name="invitedYouToX">invited you to "%1$s".</string>
   <string name="xInvitedYouToY">%1$s invited you to "%2$s".</string>
   <string name="youAreNowPartOfTeam">You are now part of the team.</string>
   <string name="youHaveJoinedTeamX">You have joined "%1$s".</string>
