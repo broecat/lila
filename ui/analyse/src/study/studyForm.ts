@@ -242,21 +242,21 @@ export function view(ctrl: StudyFormCtrl): VNode {
           h(`div.form-actions${ctrl.relay ? '' : '.single'}`, [
             ...(ctrl.relay
               ? [
-                h(
-                  'a.text',
-                  {
-                    attrs: { 'data-icon': '', href: `/broadcast/${ctrl.relay.data.tour.id}/edit` },
-                  },
-                  'Tournament settings'
-                ),
-                h(
-                  'a.text',
-                  {
-                    attrs: { 'data-icon': '', href: `/broadcast/round/${data.id}/edit` },
-                  },
-                  'Round settings'
-                ),
-              ]
+                  h(
+                    'a.text',
+                    {
+                      attrs: { 'data-icon': '', href: `/broadcast/${ctrl.relay.data.tour.id}/edit` },
+                    },
+                    'Tournament settings'
+                  ),
+                  h(
+                    'a.text',
+                    {
+                      attrs: { 'data-icon': '', href: `/broadcast/round/${data.id}/edit` },
+                    },
+                    'Round settings'
+                  ),
+                ]
               : []),
             h(
               'button.button',
@@ -272,18 +272,18 @@ export function view(ctrl: StudyFormCtrl): VNode {
         isNew
           ? null
           : h(
-            'form',
-            {
-              attrs: {
-                action: '/study/' + data.id + '/clear-chat',
-                method: 'post',
+              'form',
+              {
+                attrs: {
+                  action: '/study/' + data.id + '/clear-chat',
+                  method: 'post',
+                },
+                hook: bind('submit', _ => {
+                  return confirm(ctrl.trans.noarg('deleteTheStudyChatHistory'));
+                }),
               },
-              hook: bind('submit', _ => {
-                return confirm(ctrl.trans.noarg('deleteTheStudyChatHistory'));
-              }),
-            },
-            [h(emptyRedButton, ctrl.trans.noarg('clearChat'))]
-          ),
+              [h(emptyRedButton, ctrl.trans.noarg('clearChat'))]
+            ),
         h(
           'form',
           {
