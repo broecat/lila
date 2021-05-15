@@ -7,7 +7,7 @@
     }
   }
 
-  #mz_others {
+  .mz_others {
     margin-bottom: 3em;
   }
 
@@ -47,6 +47,10 @@
 
     &--suspect {
       border-right: 10px solid $c-bg-zebra;
+    }
+
+    img {
+      max-width: 100%;
     }
   }
 
