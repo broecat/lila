@@ -83,14 +83,17 @@ object StudyForm {
       def toChapterDatas = {
         val pgns = MultiPgn.split(pgn, max = 2000).value
         pgns.zipWithIndex map { case (onePgn, index) =>
+          println((orientationStr.flatMap(chess.Color.fromName) | chess.White).name)
+          println((orientationStr.flatMap(chess.Color.fromName) | chess.White).name)
           ChapterMaker.Data(
             // only the first chapter can be named
             name = Chapter.Name((index == 0) ?? name),
             variant = variantStr,
             pgn = onePgn.some,
             orientation =
-              if (pgns.sizeIs > 1) "auto"
-              else (orientationStr.flatMap(chess.Color.fromName) | chess.White).name,
+              // if (pgns.sizeIs > 1) "auto"
+              // else (orientationStr.flatMap(chess.Color.fromName) | chess.White).name,
+              (orientationStr.flatMap(chess.Color.fromName) | chess.White).name,
             mode = mode,
             initial = initial && index == 0
           )
